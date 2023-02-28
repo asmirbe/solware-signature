@@ -2,51 +2,32 @@
 	// @ts-nocheck
 	import "../scss/main.scss";
 	import { onMount } from "svelte";
-	import { accordion } from "../util/accordion";
-	import user, {deleteFromlocalStore} from "../store.js";
+	import user, {deleteFromlocalStore, resetToDefault} from "../store.js";
 	import {notifications} from "../component/notifications.js";
 	import Notification from "../component/notification.svelte";
 	import Dropdown from "../component/dropdown.svelte";
-
+	import { accordion } from "../component/accordion.js";
+	// import { accordion } from "../util/accordion";
 
 	let active = false,
 		localStore,
 		files,
-		avatar,
 		fileInput,
-		showMore = false;
+		avatarLoading = false,
+		showMore = false,
+		isLoading = true;
 
 	onMount(async () => {
 		localStore = localStorage.getItem("user") ? true : false;
+		// capture ctrl+s
+		document.addEventListener("keydown", function (e) {
+			if (e.ctrlKey && e.keyCode == 83) {
+				e.preventDefault();
+				saveData();
+			}
+		});
 	});
 
-	// Dropdown Font
-	let fonts = [
-		{
-			id: "Arial",
-			name: "Arial",
-		},
-		{
-			id: "Segoe UI",
-			name: "Segoe UI",
-		},
-		{
-			id: "Georgia",
-			name: "Georgia",
-		},
-		{
-			id: "Calibri",
-			name: "Calibri",
-		},
-		{
-			id: "Tahoma",
-			name: "Tahoma",
-		},
-		{
-			id: "Verdana",
-			name: "Verdana",
-		},
-	];
 
 	// Save data to local storage
 	const asyncLocalStorage = {
@@ -65,7 +46,7 @@
 	function saveData() {
 		asyncLocalStorage.setItem("user", JSON.stringify($user)).then(() => {
 			localStore = true;
-			notifications.success('Vos options ont été sauvegardées!', 1000)
+			notifications.success('Profil sauvegardé', 1000)
 		});
 	}
 
@@ -73,36 +54,41 @@
 	function removeUser() {
 		asyncLocalStorage.removeItem("user").then(() => {
 			localStore = false;
-			notifications.danger('Suppression avec succès', 1000)
+			notifications.success('Profil supprimé', 1000)
 		});
+		resetToDefault();
 	}
 
 	function getBase64(image) {
-		const reader = new FileReader();
-		reader.readAsDataURL(image);
-		reader.onload = (e) => {
-			avatar = e.target.result;
-			uploadFunction(e.target.result);
-		};
-	}
-
-	async function uploadFunction(imgBase64) {
-		const data = {};
-		data["image"] = imgBase64;
-		try {
-			const res = await fetch(`/upload`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify(data),
-			});
-			$user.pictureUrl = (await res.json()).url;
-		} catch (error) {
-			console.log(error);
-		}
-	}
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+async function uploadFunction(image) {
+	avatarLoading = true;
+  const data = {};
+  data["image"] = await getBase64(image);;
+  try {
+    const res = await fetch(`/api/upload`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+		const responseJson = await res.json();
+		$user.pictureUrl = responseJson.secure_url;
+		isLoading = false;
+		avatarLoading = false;
+		return responseJson.secure_url;
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 
 <svelte:head>
@@ -121,26 +107,26 @@
 		<h1>Générateur de signature</h1>
 		<div class="field">
 			<label for="name">Prénom et Nom</label>
-			<input type="text" id="name" bind:value={$user.name} />
+			<input type="text" spellcheck="false" autocomplete="off" id="name" bind:value={$user.name} />
 		</div>
 		<div class="field">
-			<label for="uploadFile">Photo</label>
+			<label for="uploadFile">Image</label>
 			<div class="input-file {$user.pictureUrl ? 'active' : ''}">
 				<input
+					tabindex="-1"
 					id="uploadFile"
 					type="file"
 					bind:files
 					accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif"
 					bind:this={fileInput}
-					on:change={() => getBase64(files[0])}
+					on:change={() => uploadFunction(files[0])}
 				/>
 				<div class="inline-btn">
 				<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>{$user.pictureUrl ? "Remplacer" : "Choisir"}</button>
 				{#if $user.pictureUrl}
-				<button class="btn -secondary -remove" on:click={
+				<button class="btn -secondary -remove -square" on:click={
 					() => {
-						// Delete pictureUrl from JSON in localStorage
-						notifications.success("Photo supprimée", 1000);
+						notifications.success('Image supprimé', 1000)
 						deleteFromlocalStore("pictureUrl");
 					}
 				}>
@@ -153,7 +139,7 @@
 		</div>
 		<div class="field">
 			<label for="position">Poste occupé</label>
-			<input type="text" id="position" bind:value={$user.position} />
+			<input type="text" spellcheck="false" autocomplete="off" id="position" bind:value={$user.position} />
 		</div>
 		<div class="field">
 			<label for="email">Email</label>
@@ -172,20 +158,27 @@
 		</div>
 		<div class="field">
 			<label for="linkedin">LinkedIn</label>
-			<input type="text" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.linkedin} />
+			<input type="text" spellcheck="false" autocomplete="off" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.linkedin} />
 		</div>
 		<!-- Relative -->
 		<div>
-			<div use:accordion={showMore} class="more{showMore ? '' : ' hidden'}">
-				<div class="separator" />
+			<div class="separator" />
+			<div use:accordion={showMore}  class="more {showMore ? '' : 'hidden'}">
 				<h2>Plus d'options</h2>
-				<div class="field">
 					<!-- svelte-ignore a11y-label-has-associated-control -->
-					<label>Police</label>
-					<Dropdown opts={fonts} obj="font" />
+					<div class="field">
+						<label for="uploadBanner">Bannière d'annonce</label>
+						<input type="text" spellcheck="false" autocomplete="off" bind:value={$user.banner} placeholder="Lien de votre bannière">
+					</div>
+					<div class="field">
+						<label for="bannerLink">Lien internet de l'annonce</label>
+						<input type="text" bind:value={$user.bannerLink} id="bannerLink" placeholder="Lien d'annonce">
+					</div>
+					<div class="field -inline">
+						<label for="border">Contour</label><input id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
 				</div>
 			</div>
-			<footer class={showMore ? " move" : ""}>
+			<footer>
 				<div class="buttons-group">
 					<button
 						on:click={() => {
@@ -220,11 +213,10 @@
 							</svg>Enregistrer
 						</button>
 						{#if localStore}
-							<button class="btn -secondary -remove" on:click={removeUser}>
+							<button class="btn -secondary -remove -square" on:click={removeUser}>
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16 6V5.2C16 4.0799 16 3.51984 15.782 3.09202C15.5903 2.71569 15.2843 2.40973 14.908 2.21799C14.4802 2 13.9201 2 12.8 2H11.2C10.0799 2 9.51984 2 9.09202 2.21799C8.71569 2.40973 8.40973 2.71569 8.21799 3.09202C8 3.51984 8 4.0799 8 5.2V6M3 6H21M19 6V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-									</svg>
-
+								</svg>
 							</button>
 						{/if}
 					</div>
@@ -248,7 +240,7 @@
 						 d'Outlook.
 					</p>
 					<p>
-						Ce site a été créée par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.
+						Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.
 					</p>
 					<a
 						class="btn -secondary -teams"
@@ -276,22 +268,32 @@
 		>
 			<tbody>
 				<tr>
-					{#if $user.pictureUrl}
+					{#if avatarLoading || $user.pictureUrl}
+					  {#if avatarLoading}
+						<td width="100" style="vertical-align: middle;padding: 0px 16px;text-align: center;">
+							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;height: 32px; width: 32px;" xml:space="preserve">
+								<path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
+									<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform>
+									</path>
+								</svg>
+						</td>
+						{:else}
 						<td width="100" style="vertical-align:top;padding:0 16px">
 							<img
-								alt="image"
+								alt="avatar"
 								width="100%"
 								style="border-radius: 10px;border:none"
 								src={$user.pictureUrl}
 							/>
 						</td>
-						<td style="border-left:solid #d4d4d4 1px" width="16" />
+						{/if}
+						<td style="border-left:solid #eaecf0 1px" width="16" />
 					{/if}
 					<td
 						style="vertical-align: top; text-align:left;color:#000000; text-align:left"
 					>
 						<span
-							style="display: block; padding-top: 10px; line-height:0px;color:#000000;font-size:15px; font-weight: bold;"
+							style="display: block; padding-top: 10px; line-height:0;color:#000000;font-size:15px; font-weight: bold;"
 						>
 							{$user.name}
 						</span>
@@ -301,7 +303,7 @@
 							<a
 								href="https://www.solware.fr/"
 								data-external="true"
-								style="text-decoration:none;color:#1877f2"
+								style="text-decoration:none;color:#2E90FA"
 							>
 								Solware
 							</a>
@@ -370,7 +372,12 @@
 								</tr>
 							</tbody>
 						</table>
-						<!-- <p style="margin:0;color:#8C8C8C!important;font-size: 12px;font-weight: 400;">Les informations contenues dans cet e-mail sont destinées uniquement à la personne à qui il est adressé. Si le destinataire de ce message n'est pas le destinataire prévu, veuillez contacter immédiatement l'expéditeur et supprimer l'e-mail. Toute diffusion, distribution ou reproduction de cette communication est strictement interdite.</p> -->
+						{#if $user.banner}
+							<br>
+							<a href={$user.bannerLink ? $user.bannerLink : null}>
+								<img border="0" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : null}" alt="bannière d'annonce" src={$user.banner} width="410" height="140">
+							</a>
+						{/if}
 					</td>
 				</tr>
 			</tbody>
