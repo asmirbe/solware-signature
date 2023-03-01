@@ -1,5 +1,4 @@
 <script>
-	// @ts-nocheck
 	import "../scss/main.scss";
 	import { onMount } from "svelte";
 	import user, {deleteFromlocalStore, resetToDefault} from "../store.js";
@@ -7,7 +6,6 @@
 	import Notification from "../component/notification.svelte";
 	import Dropdown from "../component/dropdown.svelte";
 	import { accordion } from "../component/accordion.js";
-	// import { accordion } from "../util/accordion";
 
 	let active = false,
 		localStore,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { v2 as cloudinary } from 'cloudinary';
 
 // cloudinary config
@@ -28,15 +27,6 @@ export async function POST(event) {
 	}
 	try {
 		let res = await cloudinary.uploader.upload(file, {
-			// transformation: [
-			// 	{
-			// 		overlay: "overlay_izoqda",
-			// 		gravity: "south_west",
-			// 		x: 0,
-			// 		y: 0,
-			// 		effect: "sharpen:100"
-			// 	},
-			// ],
 			gravity: "face",
 			folder: "avatar/",
 			width: 100,
