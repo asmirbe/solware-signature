@@ -1,19 +1,19 @@
-// @ts-nocheck
 // store.js
 import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 const defaultValue = {
-	name: "Jean Dujardin",
-	position: "Jardinier",
-	email: "solware@solware.fr",
-	phone: "04 72 52 70 70",
-	border: false,
-	banner: null,
-	bannerLink: "",
-	linkedin: "",
-	hasPic: false,
-	pictureUrl: "",
+  name: "Jean Dujardin",
+  position: "Jardinier",
+  email: "solware@solware.fr",
+  phone: "04 72 52 70 70",
+  border: false,
+  advert: false,
+  banner: null,
+  bannerLink: "",
+  linkedin: "",
+  hasPic: false,
+  pictureUrl: "",
 };
 
 if (browser) {
@@ -32,11 +32,11 @@ export const deleteFromlocalStore = (value) => {
 			n[value] = null;
 			return n;
 		});
-		const dataJson = localStorage.getItem('user');
-		const data = JSON.parse(dataJson);
-		delete data[value];
-		const updatedDataJson = JSON.stringify(data);
-		localStorage.setItem('user', updatedDataJson);
+		// const dataJson = localStorage.getItem('user');
+		// const data = JSON.parse(dataJson);
+		// delete data[value];
+		// const updatedDataJson = JSON.stringify(data);
+		// localStorage.setItem('user', updatedDataJson);
 	} catch (error) {
 		console.error('Failed to update data in localStorage:', error);
 	}

@@ -1,23 +1,58 @@
 <script>
+	// Importing scss file and svelte store, component and library
 	import "../scss/main.scss";
-	import { onMount } from "svelte";
+	import { browser } from '$app/environment';
+	import { onMount, onDestroy } from "svelte";
 	import user, {deleteFromlocalStore, resetToDefault} from "../store.js";
 	import {notifications} from "../component/notifications.js";
 	import Notification from "../component/notification.svelte";
-	import Dropdown from "../component/dropdown.svelte";
+	// import Dropdown from "../component/dropdown.svelte";
 	import { accordion } from "../component/accordion.js";
 	import Tooltip from "../component/tooltip.svelte";
+	import ClipboardJS from "clipboard";
+	import Image from "../component/image.svelte";
 
+	// Variables
 	let active = false,
-		localStore,
-		files,
-		fileInput,
-		avatarLoading = false,
-		showMore = false,
-		isLoading = true;
+	localStore,
+	files,
+	fileInput,
+	imagesLoded = false,
+	showMore = false,
+	clipboard,
+	isLoading = true;
+
+	function loadImage(img, onLoad, onError) {
+    img.onload = () => {
+      onLoad(img);
+			console.log('Image loaded!');
+    };
+    img.onerror = () => {
+      onError(img);
+    };
+    img.src = img.dataset.src;
+  }
 
 	onMount(async () => {
 		localStore = localStorage.getItem("user") ? true : false;
+		const images = document.querySelectorAll('img[data-src]');
+		images.forEach((img) => {
+      loadImage(
+        img,
+        (loadedImg) => {
+          loadedImg.removeAttribute('data-src');
+        },
+        () => {
+          console.log(`Error loading image: ${img.dataset.src}`);
+        }
+      );
+    });
+		clipboard = new ClipboardJS(".btn");
+		clipboard.on("success", function (e) {
+			notifications.success("Copié dans le presse-papier", 1000);
+			e.clearSelection();
+		});
+
 		// capture ctrl+s
 		document.addEventListener("keydown", function (e) {
 			if (e.ctrlKey && e.keyCode == 83) {
@@ -27,6 +62,11 @@
 		});
 	});
 
+	onDestroy(() => {
+		if (clipboard) {
+			clipboard.destroy();
+		}
+	});
 
 	// Save data to local storage
 	const asyncLocalStorage = {
@@ -42,6 +82,7 @@
 		},
 	};
 
+	//  save data to local storage
 	function saveData() {
 		asyncLocalStorage.setItem("user", JSON.stringify($user)).then(() => {
 			localStore = true;
@@ -58,36 +99,39 @@
 		resetToDefault();
 	}
 
+	// get base64 from image
 	function getBase64(image) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(image);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-async function uploadFunction(image) {
-	avatarLoading = true;
-  const data = {};
-  data["image"] = await getBase64(image);;
-  try {
-    const res = await fetch(`/api/upload`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-		const responseJson = await res.json();
-		$user.pictureUrl = responseJson.secure_url;
-		isLoading = false;
-		avatarLoading = false;
-		return responseJson.secure_url;
-  } catch (error) {
-    console.log(error);
-  }
-}
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.readAsDataURL(image);
+			reader.onload = () => resolve(reader.result);
+			reader.onerror = error => reject(error);
+		});
+	}
+
+	// upload image
+	async function uploadFunction(image) {
+		if (!image) return;
+		const data = {};
+		data["image"] = await getBase64(image);
+		try {
+			const res = await fetch(`/api/upload`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+			const responseJson = await res.json();
+			$user.pictureUrl = responseJson.secure_url;
+			isLoading = false;
+			return responseJson.secure_url;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+
 </script>
 
 <svelte:head>
@@ -125,7 +169,7 @@ async function uploadFunction(image) {
 				{#if $user.pictureUrl}
 				<button class="btn -secondary -remove -square" on:click={
 					() => {
-						notifications.success('Image supprimé', 1000)
+						notifications.success('Image supprimé, pensez a sauvegarder', 1000)
 						deleteFromlocalStore("pictureUrl");
 					}
 				}>
@@ -183,11 +227,14 @@ async function uploadFunction(image) {
 					</div>
 					<div class="field">
 						<label for="bannerLink">Lien internet de l'annonce</label>
-						<input type="text" bind:value={$user.bannerLink} id="bannerLink" placeholder="Lien d'annonce">
+						<input type="text" disabled={!$user.banner} bind:value={$user.bannerLink} id="bannerLink" placeholder="Lien d'annonce">
 					</div>
 					<div class="field -inline">
-						<label for="border">Contour</label><input id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
-				</div>
+						<label for="border">Contour</label><input disabled={!$user.banner} id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
+					</div>
+					<div class="field -inline">
+						<label for="advert">Avertissement de sécurité</label><input id="advert" bind:checked={$user.advert} type="checkbox" class="checkbox switch">
+					</div>
 			</div>
 			<footer>
 				<div class="buttons-group">
@@ -204,9 +251,9 @@ async function uploadFunction(image) {
 						{showMore ? "Moins d'options" : "Plus d'options"}
 					</button>
 					<button
-						data-clipboard-target="#toclipboard"
 						class="copyToClipboard btn -primary"
 						type="button"
+						data-clipboard-target=".sign-content"
 					>
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M7.5 3H14.6C16.8402 3 17.9603 3 18.816 3.43597C19.5686 3.81947 20.1805 4.43139 20.564 5.18404C21 6.03969 21 7.15979 21 9.4V16.5M6.2 21H14.3C15.4201 21 15.9802 21 16.408 20.782C16.7843 20.5903 17.0903 20.2843 17.282 19.908C17.5 19.4802 17.5 18.9201 17.5 17.8V9.7C17.5 8.57989 17.5 8.01984 17.282 7.59202C17.0903 7.21569 16.7843 6.90973 16.408 6.71799C15.9802 6.5 15.4201 6.5 14.3 6.5H6.2C5.0799 6.5 4.51984 6.5 4.09202 6.71799C3.71569 6.90973 3.40973 7.21569 3.21799 7.59202C3 8.01984 3 8.57989 3 9.7V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.0799 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -254,11 +301,9 @@ async function uploadFunction(image) {
 						Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.
 					</p>
 					<a
-						class="btn -secondary -teams"
-						href="MSTeams:/l/chat/0/0?users=abelkic@solware.fr"
-					>
-					<img src="./teams.svg" alt="">
-					Me contacter
+						href="https://teams.microsoft.com/l/chat/0/0?users=abelkic@solware.fr"
+						class="btn -secondary -teams"><img src="./teams.svg" alt="teams">
+						Me contacter
 					</a>
 				</div>
 			</footer>
@@ -275,29 +320,14 @@ async function uploadFunction(image) {
 			cellspacing="0"
 			cellpadding="0"
 			border="0"
-			style="padding: 32px 0; font-size:13px;font-weight: 500; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
+			style="border-collapse: initial; padding: 32px 0; font-size:13px;font-weight: 500; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
 		>
 			<tbody>
 				<tr>
-					{#if avatarLoading || $user.pictureUrl}
-					  {#if avatarLoading}
-						<td width="100" style="vertical-align: middle;padding: 0px 16px;text-align: center;">
-							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;height: 32px; width: 32px;" xml:space="preserve">
-								<path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
-									<animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform>
-									</path>
-								</svg>
-						</td>
-						{:else}
+					{#if $user.pictureUrl}
 						<td width="100" style="vertical-align:top;padding:0 16px">
-							<img
-								alt="avatar"
-								width="100%"
-								style="border-radius: 10px;border:none"
-								src={$user.pictureUrl}
-							/>
+							<Image src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
 						</td>
-						{/if}
 						<td style="border-left:solid #eaecf0 1px" width="16" />
 					{/if}
 					<td
@@ -331,7 +361,7 @@ async function uploadFunction(image) {
 						{/if}
 						<br />
 						<br />
-						<span style="color:#8C8C8C!important;">
+						<span style="color:#8C8C8C;">
 							68 Bis Chem. du Moulin Carron
 							<br />
 							Dardilly, France 69570
@@ -340,41 +370,45 @@ async function uploadFunction(image) {
 						<table
 							cellpadding="0"
 							border="0"
-							style="vertical-align:top; padding-top: 16px"
+							style="vertical-align:top; padding-top: 16px; border-collapse: initial;"
 						>
 							<tbody>
 								<tr>
-									<td style="font-size: 12px; font-weight: bold; ">
-										<a href="https://www.facebook.com/solwareauto/" target="_blank" data-external="true">
+									<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+										<a href="https://www.facebook.com/solwareauto/" target="_blank" rel="noreferrer" data-external="true">
 											<img
 												width="50%"
+												alt="social icon facebook"
 												style="border:none"
 												src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1677339672/facebook_xgpb61.png"
 											/>
 										</a>
 									</td>
-									<td style="font-size: 12px; font-weight: bold; ">
-										<a href="https://www.youtube.com/@solwaregroup" target="_blank" data-external="true">
+									<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+										<a href="https://www.youtube.com/@solwaregroup" target="_blank" rel="noreferrer" data-external="true">
 											<img
 												width="50%"
+												alt="social icon youtube"
 												style="border:none"
 												src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1677339672/youtube_i7c6hz.png"
 											/>
 										</a>
 									</td>
-									<td style="font-size: 12px; font-weight: bold; ">
-										<a href="https://twitter.com/solwareauto" target="_blank" data-external="true">
+									<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+										<a href="https://twitter.com/solwareauto" target="_blank" rel="noreferrer" data-external="true">
 											<img
 												width="50%"
+												alt="social icon twitter"
 												style="border:none"
 												src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1677339672/icn-twitter_l8u1ob.png"
 											/>
 										</a>
 									</td>
-									<td style="font-size: 12px; font-weight: bold; ">
-										<a href={$user.linkedin || "https://www.linkedin.com/company/solware-group/"} data-external="true">
+									<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+										<a href={$user.linkedin || "https://www.linkedin.com/company/solware-group/"} target="_blank" rel="noreferrer" data-external="true">
 											<img
 												width="50%"
+												alt="social icon linkedin"
 												style="border:none"
 												src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1677339672/icn-linkedin_dotpm5.png"
 											/>
@@ -385,9 +419,14 @@ async function uploadFunction(image) {
 						</table>
 						{#if $user.banner}
 							<br>
-							<a href={$user.bannerLink ? $user.bannerLink : null}>
-								<img border="0" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : null}" alt="bannière d'annonce" src={$user.banner} width="410" height="140">
+							<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block;">
+								<Image src={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : null}"/>
+								<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
 							</a>
+						{/if}
+						{#if $user.advert}
+						<br>
+						<span style="color:#a1a1a1;font-size:12px;">Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.</span>
 						{/if}
 					</td>
 				</tr>

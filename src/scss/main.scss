@@ -1,7 +1,7 @@
 $form-side: #fff;
 $form-bg: #fcfcfd;
-$line: #eaecf0;
-$primary: #2e90fa;
+$line: #efefef;
+$primary: #1877f2;
 $primary-hover: #1570ef;
 $primary-focus: #2e90fa;
 $bar: #404040;
@@ -10,6 +10,12 @@ $secondary-hover: #f8f8f8;
 $secondary-focus: #f8f8f8;
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@mixin small-screen {
+	@media screen and (max-width: 1024px) {
+		@content;
+	}
+}
 
 :root {
 	--form-side: #{$form-side};
@@ -107,7 +113,7 @@ h1 {
 .editor-container {
 	display: flex;
 	height: 100%;
-	@media screen and (max-width: 1024px) {
+	@include small-screen {
 		display: block;
 		height: auto;
 	}
@@ -174,7 +180,7 @@ h1 {
 			position: relative;
 		}
 	}
-	@media screen and (max-width: 1024px) {
+	@include small-screen {
 		position: relative;
 		flex-shrink: 0;
 		width: 100%;
@@ -203,8 +209,12 @@ label {
 	flex-direction: column;
 	&.-inline {
 		display: flex;
+		align-items: center;
 		column-gap: 16px;
 		flex-flow: row wrap;
+		label {
+			padding-bottom: 0;
+		}
 	}
 	p {
 		font-size: 0.8125rem;
@@ -312,6 +322,10 @@ label {
 		&::placeholder {
 			color: #667085;
 		}
+		&[disabled] {
+			background: #f9fafb;
+			cursor: not-allowed;
+		}
 	}
 	& + .field {
 		margin-top: 16px;
@@ -329,10 +343,10 @@ label {
 	justify-content: center;
 	width: 100%;
 	overflow-y: auto;
-	@media screen and (max-width: 1024px) {
+	@include small-screen {
 		margin-left: 0;
 		flex-shrink: 0;
-		padding: 0;
+		padding: 3rem;
 	}
 	.sign {
 		border: 1px solid #eaecf0;
@@ -413,6 +427,7 @@ h3 {
 	img {
 		width: 18px;
 		height: 18px;
+		stroke: currentColor;
 	}
 	&:focus {
 		box-shadow: 0px 0px 0px 1px #ffffff, 0px 0px 0px 3px #dcdcde;
@@ -447,6 +462,7 @@ h3 {
 	}
 	&.-square {
 		flex-grow: 0;
+		max-width: 36px;
 		padding: 6px;
 		aspect-ratio: 1 / 1;
 	}
@@ -630,7 +646,7 @@ h3 {
 	::selection {
 		background: transparent;
 	}
-	@media screen and (max-width: 1024px) {
+	@include small-screen {
 		width: 100%;
 		border: 0;
 	}
@@ -667,8 +683,8 @@ h3 {
 			box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06);
 			transition: 0.2s ease;
 		}
-		&:hover {
-			background: #eaecf0;
+		&:not([disabled], :checked):hover {
+			background: #e2e8f0;
 		}
 		&:checked {
 			background: $primary;
@@ -679,6 +695,9 @@ h3 {
 		}
 		&:checked ~ label {
 			padding-bottom: 4px !important;
+		}
+		&[disabled] {
+			cursor: not-allowed;
 		}
 	}
 }
