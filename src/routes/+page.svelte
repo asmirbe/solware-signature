@@ -20,7 +20,7 @@
 	imagesLoded = false,
 	showMore = false,
 	clipboard,
-	isLoading = true;
+	isLoading = false;
 
 	function loadImage(img, onLoad, onError) {
     img.onload = () => {
@@ -112,6 +112,7 @@
 	// upload image
 	async function uploadFunction(image) {
 		if (!image) return;
+		isLoading = true;
 		const data = {};
 		data["image"] = await getBase64(image);
 		try {
@@ -131,7 +132,11 @@
 			console.log(error);
 		}
 	}
-
+	function checkImageUrl(url) {
+    const validFormats = ['jpeg', 'jpg', 'gif', 'png', 'webp', 'bmp', 'tiff'];
+    const pattern = new RegExp(`^https?://.+\\.(${validFormats.join('|')})$`, 'i');
+    return pattern.test(url);
+  }
 </script>
 
 <svelte:head>
@@ -209,29 +214,31 @@
 			<div use:accordion={showMore}  class="more {showMore ? '' : 'hidden'}">
 				<h2>Plus d'options</h2>
 					<!-- svelte-ignore a11y-label-has-associated-control -->
-					<div class="field">
-						<label for="uploadBanner">Bannière d'annonce <Tooltip text="Image au format .jpg, .jpeg, .png">
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<g clip-path="url(#clip0_1054_159)">
-								<path d="M6.05998 5.99998C6.21672 5.55442 6.52608 5.17872 6.93328 4.9394C7.34048 4.70009 7.81924 4.61261 8.28476 4.69245C8.75028 4.7723 9.17252 5.01433 9.4767 5.37567C9.78087 5.737 9.94735 6.19433 9.94665 6.66665C9.94665 7.99998 7.94665 8.66665 7.94665 8.66665M7.99998 11.3333H8.00665M14.6666 7.99998C14.6666 11.6819 11.6819 14.6666 7.99998 14.6666C4.31808 14.6666 1.33331 11.6819 1.33331 7.99998C1.33331 4.31808 4.31808 1.33331 7.99998 1.33331C11.6819 1.33331 14.6666 4.31808 14.6666 7.99998Z" stroke="#98A2B3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-								</g>
-								<defs>
-								<clipPath id="clip0_1054_159">
-								<rect width="16" height="16" fill="white"/>
-								</clipPath>
-								</defs>
-							</svg>
-						</Tooltip>
-						</label>
-						<input type="text" spellcheck="false" autocomplete="off" bind:value={$user.banner} placeholder="Lien de l'image de votre bannière">
-					</div>
-					<div class="field">
-						<label for="bannerLink">Lien internet de l'annonce</label>
-						<input type="text" disabled={!$user.banner} bind:value={$user.bannerLink} id="bannerLink" placeholder="Lien d'annonce">
-					</div>
-					<div class="field -inline">
-						<label for="border">Contour</label><input disabled={!$user.banner} id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
-					</div>
+					<fieldset class="fieldset">
+						<div class="field">
+							<label for="uploadBanner">Bannière d'annonce <Tooltip text="Image au format .jpg, .jpeg, .png">
+								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<g clip-path="url(#clip0_1054_159)">
+									<path d="M6.05998 5.99998C6.21672 5.55442 6.52608 5.17872 6.93328 4.9394C7.34048 4.70009 7.81924 4.61261 8.28476 4.69245C8.75028 4.7723 9.17252 5.01433 9.4767 5.37567C9.78087 5.737 9.94735 6.19433 9.94665 6.66665C9.94665 7.99998 7.94665 8.66665 7.94665 8.66665M7.99998 11.3333H8.00665M14.6666 7.99998C14.6666 11.6819 11.6819 14.6666 7.99998 14.6666C4.31808 14.6666 1.33331 11.6819 1.33331 7.99998C1.33331 4.31808 4.31808 1.33331 7.99998 1.33331C11.6819 1.33331 14.6666 4.31808 14.6666 7.99998Z" stroke="#98A2B3" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+									</g>
+									<defs>
+									<clipPath id="clip0_1054_159">
+									<rect width="16" height="16" fill="white"/>
+									</clipPath>
+									</defs>
+								</svg>
+							</Tooltip>
+							</label>
+							<input type="text" spellcheck="false" autocomplete="off" bind:value={$user.banner} placeholder="Lien de l'image de votre bannière">
+						</div>
+						<div class="field">
+							<label for="bannerLink">Lien internet de l'annonce</label>
+							<input type="text" disabled={!$user.banner} bind:value={$user.bannerLink} id="bannerLink" placeholder="Lien d'annonce">
+						</div>
+						<div class="field -inline">
+							<label for="border">Contour</label><input disabled={!$user.banner} id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
+						</div>
+					</fieldset>
 					<div class="field -inline">
 						<label for="advert">Avertissement de sécurité</label><input id="advert" bind:checked={$user.advert} type="checkbox" class="checkbox switch">
 					</div>
@@ -326,7 +333,7 @@
 				<tr>
 					{#if $user.pictureUrl}
 						<td width="100" style="vertical-align:top;padding:0 16px">
-							<Image src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
+							<Image isLoading={isLoading} src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
 						</td>
 						<td style="border-left:solid #eaecf0 1px" width="16" />
 					{/if}
@@ -370,7 +377,7 @@
 						<table
 							cellpadding="0"
 							border="0"
-							style="vertical-align:top; padding-top: 16px; border-collapse: initial;"
+							style="vertical-align:top; padding-top: 16px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? "padding-bottom: 12px;" : ""}"
 						>
 							<tbody>
 								<tr>
@@ -417,16 +424,14 @@
 								</tr>
 							</tbody>
 						</table>
-						{#if $user.banner}
-							<br>
-							<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block;">
+						{#if checkImageUrl($user.banner)}
+							<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block; {$user.advert ? "padding-bottom: 6px;" : ""}">
 								<Image src={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : null}"/>
 								<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
 							</a>
 						{/if}
 						{#if $user.advert}
-						<br>
-						<span style="color:#a1a1a1;font-size:12px;">Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.</span>
+						<span style="color:#aaa;font-size:8pt;">Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.</span>
 						{/if}
 					</td>
 				</tr>
