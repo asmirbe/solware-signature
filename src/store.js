@@ -3,8 +3,8 @@ import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 const defaultValue = {
-  name: "Jean Dujardin",
-  position: "Jardinier",
+  name: "Prénom Nom",
+  position: "Poste",
   email: "solware@solware.fr",
   phone: "04 72 52 70 70",
   border: false,

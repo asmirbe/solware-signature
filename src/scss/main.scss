@@ -96,11 +96,12 @@ h1 {
 	line-height: 32px;
 	color: #101828;
 	margin-top: 0;
-	margin-bottom: 24px;
+	margin-bottom: 16px;
 }
 .inline-btn {
 	width: 100%;
-	gap: 16px;
+	column-gap: 12px;
+	row-gap: 16px;
 	display: flex;
 	flex-flow: row wrap;
 	align-items: center;
@@ -129,16 +130,17 @@ h1 {
 	border-right: 1px solid #eaecf0;
 	overflow-x: hidden !important;
 	.logo {
-		padding: 14px 24px 0;
+		padding: 24px 24px 0;
 		display: flex;
+		align-items: center;
 		svg {
-			height: 36px;
+			width: auto;
+			height: 16px;
 		}
 	}
 	.content {
 		padding: 20px 24px 0;
 		height: auto;
-
 		.desc {
 			margin-top: 1.75rem;
 			.outlook {
@@ -356,6 +358,8 @@ label {
 		padding: 3rem;
 	}
 	.sign {
+		min-width: 650px;
+		min-height: 245px;
 		border: 1px solid #eaecf0;
 		display: flex;
 		flex-direction: column;
@@ -373,6 +377,9 @@ label {
 		}
 		&-content {
 			display: flex;
+		}
+		@include small-screen {
+			min-width: 100%;
 		}
 	}
 }
