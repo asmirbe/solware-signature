@@ -11,6 +11,7 @@ const defaultValue = {
   advert: false,
   banner: null,
   bannerLink: "",
+	hideAnnouncement: true,
   linkedin: "",
   hasPic: false,
   pictureUrl: "",

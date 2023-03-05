@@ -22,9 +22,17 @@ cloudinary.config({
 export async function POST(event) {
 	const data = await event.request.json();
 	const file = data['image'];
+	const origin = event.request.headers.get('Origin');
+
+  // Check if the request is coming from the same domain
+  // if (!origin || !origin.includes('solware.vercel.app')) {
+  //   return new Response(JSON.stringify({ error: "Invalid request." }));
+  // }
+
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
 	}
+
 	try {
 		let res = await cloudinary.uploader.upload(file, {
 			gravity: "face",

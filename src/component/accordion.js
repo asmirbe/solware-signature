@@ -15,6 +15,10 @@ export function accordion(node, isOpen) {
 		update(isOpen) {
 			let targetHeight = isOpen ? Dimension(node) : 0;
 			node.style.height = `${targetHeight}px`;
+			// node style display flex and flex-direction column
+			node.style.display = `${isOpen ? 'flex' : ''}`;
+			node.style.flexDirection = `${isOpen ? 'column' : ''}`;
+			node.style.marginBottom = `${isOpen ? '20px' : ''}`;
 		},
 	};
 }

@@ -1,9 +1,9 @@
 $form-side: #fff;
 $form-bg: #fcfcfd;
-$line: #efefef;
-$primary: #1877f2;
-$primary-hover: #1570ef;
-$primary-focus: #2e90fa;
+$line: #e8e8e8;
+$primary: #0085ff;
+$primary-hover: #339dff;
+$primary-focus: #1272cc;
 $bar: #404040;
 $secondary: #f4f5f7;
 $secondary-hover: #f8f8f8;
@@ -96,7 +96,7 @@ h1 {
 	line-height: 32px;
 	color: #101828;
 	margin-top: 0;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 }
 .inline-btn {
 	width: 100%;
@@ -105,10 +105,21 @@ h1 {
 	display: flex;
 	flex-flow: row wrap;
 	align-items: center;
+	position: relative;
 	input:not([type="checkbox"]),
 	.btn {
 		width: auto !important;
 		flex-grow: 1;
+	}
+	.btn.in-input {
+		height: 26px;
+		width: 26px;
+		position: absolute;
+		right: 4px;
+		padding: 3px;
+		~ input {
+			padding-right: 40px !important;
+		}
 	}
 }
 .editor-container {
@@ -130,16 +141,22 @@ h1 {
 	border-right: 1px solid #eaecf0;
 	overflow-x: hidden !important;
 	.logo {
+		text-decoration: none;
 		padding: 24px 24px 0;
 		display: flex;
 		align-items: center;
+		gap: 8px;
+		transition: 0.2s ease;
 		svg {
 			width: auto;
-			height: 16px;
+			height: 24px;
+		}
+		&:hover {
+			opacity: 0.6;
 		}
 	}
 	.content {
-		padding: 20px 24px 0;
+		padding: 24px 24px 0;
 		height: auto;
 		.desc {
 			margin-top: 1.75rem;
@@ -172,6 +189,7 @@ h1 {
 				z-index: 0;
 				pointer-events: none;
 				user-select: none;
+				-webkit-user-select: none;
 				opacity: 0.4;
 				filter: blur(6px);
 			}
@@ -208,7 +226,6 @@ label {
 .fieldset {
 	padding: 16px;
 	border-radius: 10px;
-	margin-bottom: 16px;
 	border: 1px solid $line;
 	background: #f9fafb;
 }
@@ -337,7 +354,7 @@ label {
 		}
 	}
 	& + .field {
-		margin-top: 16px;
+		margin-top: 20px;
 	}
 }
 .preview-container {
@@ -399,6 +416,7 @@ label {
 }
 h2 {
 	font-weight: 600;
+	margin-top: 0;
 	font-size: 18px;
 	line-height: 28px;
 	color: #101828;
@@ -408,6 +426,9 @@ p {
 	font-size: 14px;
 	line-height: 22px;
 	color: #475467;
+	a {
+		color: #475467;
+	}
 }
 h3 {
 	font-weight: 500;
@@ -421,6 +442,7 @@ h3 {
 	outline: none;
 	text-decoration: none;
 	user-select: none;
+	-webkit-user-select: none;
 	-webkit-user-drag: none;
 	width: 100%;
 	box-shadow: 0px 1px 2px -5px rgba(10, 9, 11, 0.03), 0px 1px 2px rgba(10, 9, 11, 0.02);
@@ -429,11 +451,12 @@ h3 {
 	display: inline-flex;
 	justify-content: center;
 	gap: 8px;
-	color: #344054;
+	color: #5f5f61;
+	background: #f1f1f1;
 	align-items: center;
 	border-radius: 6px;
 	font-family: inherit;
-	font-weight: 500;
+	font-weight: 600;
 	font-size: 14px;
 	line-height: 1;
 	transition: 0.2s ease;
@@ -649,6 +672,7 @@ h3 {
 			text-decoration: none;
 			text-align: center;
 			user-select: none;
+			-webkit-user-select: none;
 			height: 32px;
 			background-color: transparent;
 			display: inline-block;

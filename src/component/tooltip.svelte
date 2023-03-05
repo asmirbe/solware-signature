@@ -8,42 +8,86 @@
 </div>
 
 <style lang="scss">
-	$primary: #101828;
-	.tooltip {
+	.tippy-box[data-animation="fade"][data-state="hidden"] {
+		opacity: 0;
+	}
+	[data-tippy-root] {
+		max-width: calc(100vw - 10px);
+	}
+	.tippy-box {
 		position: relative;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		.tooltip-text {
-			visibility: hidden;
-			opacity: 0;
-			width: auto;
-			background-color: $primary;
-			color: #fff;
-			text-align: center;
-			border-radius: 8px;
-			white-space: nowrap;
-			padding: 8px 12px;
-			position: absolute;
-			z-index: 1;
-			bottom: 150%;
-			transition: opacity 0.3s;
-			&::after {
-				content: "";
-				position: absolute;
-				top: 100%;
-				left: 50%;
-				margin-left: -5px;
-				border-width: 5px;
-				border-style: solid;
-				border-color: $primary transparent transparent transparent;
+		background-color: #101828;
+		color: #fff;
+		border-radius: 8px;
+		font-size: 14px;
+		line-height: 1.4;
+		white-space: normal;
+		outline: 0;
+		transition-property: transform, visibility, opacity;
+	}
+	.tippy-box[data-placement^="top"] {
+		> .tippy-arrow {
+			bottom: 0;
+			&:before {
+				bottom: -7px;
+				left: 0;
+				border-width: 8px 8px 0;
+				border-top-color: initial;
+				transform-origin: center top;
 			}
 		}
-		&:hover .tooltip-text {
-			visibility: visible;
-			opacity: 1;
+	}
+	.tippy-box[data-placement^="bottom"] {
+		> .tippy-arrow {
+			top: 0;
+			&:before {
+				top: -7px;
+				left: 0;
+				border-width: 0 8px 8px;
+				border-bottom-color: initial;
+				transform-origin: center bottom;
+			}
 		}
 	}
-
-
+	.tippy-box[data-placement^="left"] {
+		> .tippy-arrow {
+			right: 0;
+			&:before {
+				border-width: 8px 0 8px 8px;
+				border-left-color: initial;
+				right: -7px;
+				transform-origin: center left;
+			}
+		}
+	}
+	.tippy-box[data-placement^="right"] {
+		> .tippy-arrow {
+			left: 0;
+			&:before {
+				left: -7px;
+				border-width: 8px 8px 8px 0;
+				border-right-color: initial;
+				transform-origin: center right;
+			}
+		}
+	}
+	.tippy-box[data-inertia][data-state="visible"] {
+		transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
+	}
+	.tippy-arrow {
+		width: 16px;
+		height: 16px;
+		color: #101828;
+		&:before {
+			content: "";
+			position: absolute;
+			border-color: transparent;
+			border-style: solid;
+		}
+	}
+	.tippy-content {
+		position: relative;
+		padding: 8px 12px;
+		z-index: 1;
+	}
 </style>
