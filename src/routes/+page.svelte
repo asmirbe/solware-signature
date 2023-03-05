@@ -353,7 +353,7 @@
 				cellspacing="0"
 				cellpadding="0"
 				border="0"
-				style="border-collapse: initial; padding: 32px 0; font-size:13px;">
+				style="border-collapse: initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 				<tbody>
 					<tr>
 						{#if $user.pictureUrl}
