@@ -12,7 +12,7 @@
 	let naturalWidth = 0;
   let naturalHeight = 0;
 	let newHeight = 0;
-  function loadImage(img) {
+  async function loadImage(img) {
     img.onload = () => {
       loaded = true;
 			naturalWidth = img.naturalWidth;
@@ -29,11 +29,14 @@
       error = true;
     };
     img.src = src;
+
   }
 
   onMount(() => {
 		const img = new Image();
-    loadImage(img);
+    loadImage(img).then(() => {
+			loaded = false;
+		});
   });
 </script>
 

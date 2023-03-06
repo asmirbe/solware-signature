@@ -24,10 +24,11 @@ export async function POST(event) {
 	const file = data['image'];
 	const origin = event.request.headers.get('Origin');
 
-  // Check if the request is coming from the same domain
-  // if (!origin || !origin.includes('solware.vercel.app')) {
-  //   return new Response(JSON.stringify({ error: "Invalid request." }));
-  // }
+  //Check if the request is coming from the same domain
+	const allowedOrigins = ['http://localhost:5173', 'solware.vercel.app'];
+	if (!allowedOrigins.includes(origin)) {
+		return new Response(JSON.stringify({ error: "Origin refused" }));
+	}
 
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
@@ -41,8 +42,8 @@ export async function POST(event) {
 			height: 100,
 			quality: 100,
 			crop: "fill",
-		}
-		);
+		});
+		console.log(res);
 		return new Response(JSON.stringify({ secure_url: res.secure_url }));
 	} catch (err) {
 		console.log(err);

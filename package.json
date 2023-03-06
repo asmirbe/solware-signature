@@ -2,7 +2,7 @@
 	"name": "image-upload",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev --host",
+		"dev": "vite dev --host --open",
 		"build": "vite build",
 		"preview": "vite preview"
 	},

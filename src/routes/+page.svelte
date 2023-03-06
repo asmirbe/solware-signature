@@ -115,7 +115,7 @@
 	}
 
 	// upload image
-	async function uploadFunction(image) {
+	async function uploadFunction(image, input) {
 		if (!image) return;
 		isLoading = true;
 		const data = {};
@@ -130,9 +130,15 @@
 				body: JSON.stringify(data),
 			});
 			const responseJson = await res.json();
-			$user.pictureUrl = responseJson.secure_url;
-			isLoading = false;
-			return responseJson.secure_url;
+      if (responseJson.error) {
+        notifications.warning(responseJson.error, 1000);
+      } else {
+        $user.pictureUrl = responseJson.secure_url;
+        notifications.success("Image uploaded successfully!", 1000);
+      }
+			input.value = null;
+      isLoading = false;
+      return responseJson.secure_url;
 		} catch (error) {
 			console.log(error);
 		}
@@ -175,7 +181,7 @@
 					bind:files
 					accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif"
 					bind:this={fileInput}
-					on:change={() => uploadFunction(files[0])}
+					on:change={(e) => uploadFunction(files[0], e.target)}
 				/>
 				<div class="inline-btn">
 				<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>{$user.pictureUrl ? "Remplacer" : "Choisir"}</button>
