@@ -25,7 +25,7 @@ export async function POST(event) {
 	const origin = event.request.headers.get('Origin');
 
   //Check if the request is coming from the same domain
-	const allowedOrigins = ['http://localhost:5173', 'solware.vercel.app'];
+	const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
 	if (!allowedOrigins.includes(origin)) {
 		return new Response(JSON.stringify({ error: "Origin refused" }));
 	}
