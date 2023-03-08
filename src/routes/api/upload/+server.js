@@ -24,11 +24,11 @@ export async function POST(event) {
 	const file = data['image'];
 	const origin = event.request.headers.get('Origin');
 
-  //Check if the request is coming from the same domain
-	const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
-	if (!allowedOrigins.includes(origin)) {
-		return new Response(JSON.stringify({ error: "Origin refused" }));
-	}
+  // //Check if the request is coming from the same domain
+	// const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
+	// if (!allowedOrigins.includes(origin)) {
+	// 	return new Response(JSON.stringify({ error: "Origin refused" }));
+	// }
 
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
