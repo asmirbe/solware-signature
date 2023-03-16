@@ -134,7 +134,6 @@
         notifications.warning(responseJson.error, 1000);
       } else {
         $user.pictureUrl = responseJson.secure_url;
-        notifications.success("Image uploaded successfully!", 1000);
       }
 			input.value = null;
       isLoading = false;
@@ -362,7 +361,7 @@
 				style="font-family:'Roboto', 'Helvetica', 'Segoe UI', sans-serif; initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 				<tbody>
 					<tr>
-						{#if $user.pictureUrl}
+						{#if $user.pictureUrl || isLoading === true}
 							<td width="100" style="vertical-align:top;padding:0 16px;">
 								<Image isLoading={isLoading} src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
 							</td>
