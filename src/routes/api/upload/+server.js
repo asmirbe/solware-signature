@@ -22,18 +22,6 @@ cloudinary.config({
 export async function POST(event) {
 	const data = await event.request.json();
 	const file = data['image'];
-	const origin = event.request.headers.get('Origin');
-
-	const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
-	console.log(origin);
-	if (!allowedOrigins.includes(origin)) {
-		return new Response(JSON.stringify({ error: "Origin refused" }), {
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
-	}
-
 
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
