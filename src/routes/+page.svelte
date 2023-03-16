@@ -347,7 +347,7 @@
 			</span>
 			{:else}
 				<style type="text/css">
-					@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+					@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 					table, tbody, tr, td {
 						font-family: Roboto, 'Helvetica', 'Segoe UI', sans-serif;
 						font-weight: 400;
@@ -359,7 +359,7 @@
 				cellspacing="0"
 				cellpadding="0"
 				border="0"
-				style="border-collapse: initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
+				style="font-family:'Roboto', 'Helvetica', 'Segoe UI', sans-serif; initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 				<tbody>
 					<tr>
 						{#if $user.pictureUrl}
@@ -380,9 +380,9 @@
 								<a
 									href="https://www.solware.fr/"
 									data-external="true"
-									style="text-decoration:none !important;color:#2E90FA;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;"
+									style="text-decoration:none !important;color:#075dc9;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;"
 								>
-									<span style="text-decoration:none;color:#2E90FA;font-weight: 500 !important;">Solware</span>
+									<span style="text-decoration:none;color:#075dc9;font-weight: 500 !important;">Solware</span>
 								</a>
 							</span>
 							<!-- tel -->
@@ -440,7 +440,7 @@
 											</a>
 										</td>
 										<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
-											<a href={$user.linkedin || "https://www.linkedin.com/company/solware-group/"} target="_blank" rel="noreferrer" data-external="true">
+											<a href={$user.linkedin || "https://www.linkedin.com/company/solware-auto/"} target="_blank" rel="noreferrer" data-external="true">
 												<img
 													width="50%"
 													alt="social icon linkedin"

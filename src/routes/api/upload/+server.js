@@ -24,11 +24,16 @@ export async function POST(event) {
 	const file = data['image'];
 	const origin = event.request.headers.get('Origin');
 
-  // //Check if the request is coming from the same domain
-	// const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
-	// if (!allowedOrigins.includes(origin)) {
-	// 	return new Response(JSON.stringify({ error: "Origin refused" }));
-	// }
+	const allowedOrigins = ['http://localhost:5173', 'https://solware.vercel.app/', 'http://solware.vercel.app/'];
+	console.log(origin);
+	if (!allowedOrigins.includes(origin)) {
+		return new Response(JSON.stringify({ error: "Origin refused" }), {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	}
+
 
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
@@ -36,17 +41,16 @@ export async function POST(event) {
 
 	try {
 		let res = await cloudinary.uploader.upload(file, {
-			gravity: "face",
 			folder: "avatar/",
-			width: 100,
-			height: 100,
-			quality: 100,
-			crop: "fill",
+			transformation: [
+				{ quality: 100, width: 100, height: 100, gravity: "face", crop: "fill" },
+				{ overlay: "overlay_gi26k0", width: 90, crop: "scale", gravity: "south_west" }
+			],
+			html_width: 100,
+			html_height: 100
 		});
-		console.log(res);
 		return new Response(JSON.stringify({ secure_url: res.secure_url }));
 	} catch (err) {
-		console.log(err);
 		return new Response(JSON.stringify({ error: err }));
 	}
 }
