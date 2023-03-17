@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-
+import { isReady } from '../../../store.js'
 // cloudinary config
 cloudinary.config({
 	cloud_name: 'dshtbs5hm',
@@ -37,8 +37,10 @@ export async function POST(event) {
 			html_width: 100,
 			html_height: 100
 		});
+		isReady.set(true);
 		return new Response(JSON.stringify({ secure_url: res.secure_url }));
 	} catch (err) {
+		isReady.set(true);
 		return new Response(JSON.stringify({ error: err }));
 	}
 }

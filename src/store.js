@@ -26,7 +26,6 @@ const initialValue = browser
 	: defaultValue;
 
 let user = writable(initialValue);
-
 export const deleteFromlocalStore = (value) => {
 	try {
 		user.update(n => {
@@ -44,7 +43,7 @@ export const deleteFromlocalStore = (value) => {
 };
 
 export const resetToDefault = () => {
-	console.log(defaultValue);
+	// console.log(defaultValue);
 	try {
 		user.set(defaultValue);
 		localStorage.setItem('user', JSON.stringify(defaultValue));
@@ -54,3 +53,5 @@ export const resetToDefault = () => {
 };
 
 export default user;
+export const isLoading = writable(false);
+export const isReady = writable(false);

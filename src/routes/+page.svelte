@@ -3,13 +3,14 @@
 	import "../scss/main.scss";
 	import { browser } from '$app/environment';
 	import { onMount, onDestroy } from "svelte";
-	import user, {deleteFromlocalStore, resetToDefault} from "../store.js";
+	import user, {deleteFromlocalStore, resetToDefault, isLoading, isReady} from "../store.js";
 	import {notifications} from "../component/notifications.js";
 	import Notification from "../component/notification.svelte";
 	// import Dropdown from "../component/dropdown.svelte";
 	import { accordion } from "../component/accordion.js";
 	// import Tooltip from "../component/tooltip.svelte";
 	import {tooltip} from "../component/tooltip.js";
+
 	import ClipboardJS from "clipboard";
 	import Image from "../component/image.svelte";
 	import { fade } from 'svelte/transition';
@@ -22,13 +23,12 @@
 	signLoading = true,
 	imagesLoded = false,
 	showMore = false,
-	clipboard,
-	isLoading = false;
+	clipboard;
 
 	function loadImage(img, onLoad, onError) {
     img.onload = () => {
       onLoad(img);
-			console.log('Image loaded!');
+			// console.log('Image loaded!');
     };
     img.onerror = () => {
       onError(img);
@@ -90,7 +90,7 @@
 		asyncLocalStorage.setItem("user", JSON.stringify($user)).then(() => {
 			localStore = true;
 			notifications.success('Profil sauvegardé', 1000)
-			console.log("Data saved to local storage");
+			// console.log("Data saved to local storage");
 		});
 	}
 
@@ -116,7 +116,7 @@
 	// upload image
 	async function uploadFunction(image, input) {
 		if (!image) return;
-		isLoading = true;
+		isLoading.set(true);
 		const data = {};
 		data["image"] = await getBase64(image);
 		try {
@@ -134,8 +134,7 @@
       } else {
         $user.pictureUrl = responseJson.secure_url;
       }
-			input.value = null;
-      isLoading = false;
+      isLoading.set(false);
       return responseJson.secure_url;
 		} catch (error) {
 			console.log(error);
@@ -328,7 +327,6 @@
 			</footer>
 		</div>
 	</div>
-	<div class="scrollbar"></div>
 </aside>
 <Notification />
 <div class="preview-container">
@@ -361,9 +359,9 @@
 				style="font-family:'Roboto', 'Helvetica', 'Segoe UI', sans-serif; initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 				<tbody>
 					<tr>
-						{#if $user.pictureUrl || isLoading === true}
+						{#if $user.pictureUrl || $isLoading || $isReady}
 							<td width="100" style="vertical-align:top;padding:0 16px;">
-								<Image isLoading={isLoading} src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
+								<Image src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
 							</td>
 							<td style="border-left:solid #eaecf0 1px" width="16" />
 						{/if}
@@ -452,7 +450,7 @@
 								</tbody>
 							</table>
 							{#if checkImageUrl($user.banner) && $user.hideAnnouncement === true}
-								<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block; {$user.advert ? "padding-bottom: 6px;" : ""}">
+								<a href={$user.bannerLink ? $user.bannerLink : ''} style="display:block; {$user.advert ? "padding-bottom: 6px;" : ""}">
 									<Image src={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : ''}"/>
 									<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
 								</a>
