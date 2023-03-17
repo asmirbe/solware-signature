@@ -10,7 +10,6 @@
 	import { accordion } from "../component/accordion.js";
 	// import Tooltip from "../component/tooltip.svelte";
 	import {tooltip} from "../component/tooltip.js";
-
 	import ClipboardJS from "clipboard";
 	import Image from "../component/image.svelte";
 	import { fade } from 'svelte/transition';
@@ -329,6 +328,7 @@
 			</footer>
 		</div>
 	</div>
+	<div class="scrollbar"></div>
 </aside>
 <Notification />
 <div class="preview-container">
