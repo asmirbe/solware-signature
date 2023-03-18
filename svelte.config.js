@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-vercel';
 import preprocess from 'svelte-preprocess';
-
+import path from 'path';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	ssr: true,
@@ -9,7 +9,7 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
 	}
 };
 

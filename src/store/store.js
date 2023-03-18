@@ -4,14 +4,15 @@ import { writable } from "svelte/store";
 
 const defaultValue = {
   name: "Prénom Nom",
-  position: "Poste",
-  email: "solware@solware.fr",
+	font: 'Arial',
+  position: "Poste occupé",
+  email: "",
   phone: "04 72 52 70 70",
   border: false,
   advert: false,
   banner: null,
   bannerLink: "",
-	hideAnnouncement: true,
+	hideAnnouncement: false,
   linkedin: "",
   hasPic: false,
   pictureUrl: "",
@@ -32,18 +33,12 @@ export const deleteFromlocalStore = (value) => {
 			n[value] = null;
 			return n;
 		});
-		// const dataJson = localStorage.getItem('user');
-		// const data = JSON.parse(dataJson);
-		// delete data[value];
-		// const updatedDataJson = JSON.stringify(data);
-		// localStorage.setItem('user', updatedDataJson);
 	} catch (error) {
 		console.error('Failed to update data in localStorage:', error);
 	}
 };
 
 export const resetToDefault = () => {
-	// console.log(defaultValue);
 	try {
 		user.set(defaultValue);
 		localStorage.setItem('user', JSON.stringify(defaultValue));
@@ -54,4 +49,4 @@ export const resetToDefault = () => {
 
 export default user;
 export const isLoading = writable(false);
-export const isReady = writable(false);
+export const welcomeModal = writable(false);

@@ -1,10 +1,9 @@
 <script>
-	// @ts-nocheck
-  import user from "../store.js";
+  import user from "$stores/store.js";
 	let show = false;
 	let container;
 
-	export let opts = null;
+	export let options = null;
 	export let obj;
 
 	function onWindowClick(e) {
@@ -15,8 +14,7 @@
 	function handleClick(params) {
 		show = false;
 		user.update(n => {
-			let x = obj;
-			n[x] = params.id;
+			n[obj] = params.id;
 			return n;
 		});
 	}
@@ -25,13 +23,13 @@
 <svelte:window on:click={onWindowClick} />
 
 <div class="dropdown" bind:this={container}>
-	<button class="dropdown-toggle {show === true ? 'open' : ''}" on:click={() => show = !show }>{$user.font}</button>
+	<button class:open={show} class="dropdown-toggle" on:click={() => show = !show }>{$user[obj]}</button>
 	{#if show}
 		<div class="dropdown-menu">
-			{#each opts as opt}
+			{#each options as opt}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span on:click={() => {handleClick(opt)}}>{opt.name}
-				{#if opt.name === $user.font}
+				{#if opt.name === $user[obj]}
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M16.6668 5L7.50016 14.1667L3.3335 10" stroke="#2e90fa" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>

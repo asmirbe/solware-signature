@@ -1,70 +1,79 @@
 <script>
-	// Importing scss file and svelte store, component and library
 	import "../scss/main.scss";
 	import { browser } from '$app/environment';
 	import { onMount, onDestroy } from "svelte";
-	import user, {deleteFromlocalStore, resetToDefault, isLoading, isReady} from "../store.js";
-	import {notifications} from "../component/notifications.js";
-	import Notification from "../component/notification.svelte";
-	// import Dropdown from "../component/dropdown.svelte";
-	import { accordion } from "../component/accordion.js";
-	// import Tooltip from "../component/tooltip.svelte";
-	import {tooltip} from "../component/tooltip.js";
-
+	import user, { deleteFromlocalStore , resetToDefault } from "$stores/store.js";
+	import { notifications } from "$lib/notifications.js";
+	import Notification from "$components/Notification.svelte";
+	import Dropdown from "$components/Dropdown.svelte";
+	import { accordion } from "$lib/accordion.js";
+	import { tooltip } from "$lib/tooltip.js";
 	import ClipboardJS from "clipboard";
-	import Image from "../component/image.svelte";
-	import { fade } from 'svelte/transition';
+	import { fade } from 'svelte/transition'
 
 	// Variables
-	let active = false,
-	localStore,
+	let localStore,
 	files,
 	fileInput,
 	signLoading = true,
-	imagesLoded = false,
 	showMore = false,
-	clipboard;
+	imageLoading = false,
+	loadedAnnounce = null,
+	loadedImage = null,
+	clipboard,
+	naturalWidth = 0,
+	naturalHeight = 0,
+	newHeight = 0;
 
-	function loadImage(img, onLoad, onError) {
-    img.onload = () => {
-      onLoad(img);
-			// console.log('Image loaded!');
-    };
-    img.onerror = () => {
-      onError(img);
-    };
-    img.src = img.dataset.src;
-  }
+
+	let fontOptions = [
+    { id: "Arial", name: "Arial" },
+    { id: "Helvetica", name: "Helvetica" },
+    { id: "Times New Roman", name: "Times New Roman" },
+  ];
+
+	const loadImage = (src, banner) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+				if (banner) {
+					naturalWidth = img.naturalWidth;
+					naturalHeight = img.naturalHeight;
+					if (naturalWidth > 412) {
+						const aspectRatio = naturalWidth / naturalHeight;
+						newHeight = Math.floor(412 / aspectRatio);
+						naturalWidth = 412;
+					}
+				}
+				resolve(img)
+			};
+      img.onerror = reject;
+      img.src = src;
+    });
+
 
 	onMount(async () => {
 		localStore = localStorage.getItem("user") ? true : false;
-		localStorage ? signLoading = false : signLoading = true;
-		const images = document.querySelectorAll('img[data-src]');
-		images.forEach((img) => {
-      loadImage(
-        img,
-        (loadedImg) => {
-          loadedImg.removeAttribute('data-src');
-        },
-        () => {
-          console.log(`Error loading image: ${img.dataset.src}`);
-        }
-      );
-    });
+		signLoading = localStorage ? false : true;
 		clipboard = new ClipboardJS(".btn");
 		clipboard.on("success", function (e) {
 			notifications.success("Copié dans le presse-papier", 1000);
 			e.clearSelection();
 		});
-
+		if($user.pictureUrl) loadedImage = await loadImage($user.pictureUrl);
+		if($user.banner) loadedAnnounce = await loadImage($user.banner, true);
 		window.addEventListener("keydown", handleKeyDown);
 	});
+
+	// Capture ctrl + s
 	function handleKeyDown(event) {
     if (event.ctrlKey && event.key === "s") {
 			event.preventDefault();
 			saveData();
     }
   }
+
+	// Destroy clipboard
 	onDestroy(() => {
 		if (clipboard) {
 			clipboard.destroy();
@@ -90,7 +99,6 @@
 		asyncLocalStorage.setItem("user", JSON.stringify($user)).then(() => {
 			localStore = true;
 			notifications.success('Profil sauvegardé', 1000)
-			// console.log("Data saved to local storage");
 		});
 	}
 
@@ -116,8 +124,9 @@
 	// upload image
 	async function uploadFunction(image, input) {
 		if (!image) return;
-		isLoading.set(true);
 		const data = {};
+		$user.hasPic = true;
+		loadedImage = null;
 		data["image"] = await getBase64(image);
 		try {
 			const res = await fetch(`/api/upload`, {
@@ -131,20 +140,27 @@
 			const responseJson = await res.json();
       if (responseJson.error) {
         notifications.warning(responseJson.error, 1000);
-      } else {
-        $user.pictureUrl = responseJson.secure_url;
       }
-      isLoading.set(false);
-      return responseJson.secure_url;
+			$user.pictureUrl = responseJson.secure_url;
+			loadedImage = await loadImage($user.pictureUrl);
 		} catch (error) {
 			console.log(error);
 		}
 	}
-	function checkImageUrl(url) {
-    const validFormats = ['jpeg', 'jpg', 'gif', 'png', 'webp', 'bmp', 'tiff'];
-    const pattern = new RegExp(`^https?://.+\\.(${validFormats.join('|')})$`, 'i');
-    return pattern.test(url);
+
+	// Check if URL of image is valid
+	async function checkImageUrl(url) {
+		if(!url) return;
+		if($user.banner) {
+			const validFormats = ['jpeg', 'jpg', 'gif', 'png', 'webp', 'bmp', 'tiff'];
+			const pattern = new RegExp(`^https?://.+\\.(${validFormats.join('|')})$`, 'i');
+			if(pattern.test(url)) {
+				loadedAnnounce = await loadImage(url, true);
+				return true;
+			}
+		}
   }
+	$: console.log($user.hasPic), console.log($user.pictureUrl)
 </script>
 
 <svelte:head>
@@ -170,23 +186,31 @@
 		</div>
 		<div class="field">
 			<label for="uploadFile">Image</label>
-			<div class="input-file {$user.pictureUrl ? 'active' : ''}">
+			<div class="input-file" class:active={$user.pictureUrl}>
 				<input
 					tabindex="-1"
 					id="uploadFile"
 					type="file"
+					class="btn -secondary"
 					bind:files
 					accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif"
 					bind:this={fileInput}
 					on:change={(e) => uploadFunction(files[0], e.target)}
 				/>
 				<div class="inline-btn">
-				<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>{$user.pictureUrl ? "Remplacer" : "Choisir"}</button>
-				{#if $user.pictureUrl}
+				<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16.2 21H6.93137C6.32555 21 6.02265 21 5.88238 20.8802C5.76068 20.7763 5.69609 20.6203 5.70865 20.4608C5.72312 20.2769 5.93731 20.0627 6.36569 19.6343L14.8686 11.1314C15.2646 10.7354 15.4627 10.5373 15.691 10.4632C15.8918 10.3979 16.1082 10.3979 16.309 10.4632C16.5373 10.5373 16.7354 10.7354 17.1314 11.1314L21 15V16.2M16.2 21C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2M16.2 21H7.8C6.11984 21 5.27976 21 4.63803 20.673C4.07354 20.3854 3.6146 19.9265 3.32698 19.362C3 18.7202 3 17.8802 3 16.2V7.8C3 6.11984 3 5.27976 3.32698 4.63803C3.6146 4.07354 4.07354 3.6146 4.63803 3.32698C5.27976 3 6.11984 3 7.8 3H16.2C17.8802 3 18.7202 3 19.362 3.32698C19.9265 3.6146 20.3854 4.07354 20.673 4.63803C21 5.27976 21 6.11984 21 7.8V16.2M10.5 8.5C10.5 9.60457 9.60457 10.5 8.5 10.5C7.39543 10.5 6.5 9.60457 6.5 8.5C6.5 7.39543 7.39543 6.5 8.5 6.5C9.60457 6.5 10.5 7.39543 10.5 8.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					{$user.hasPic ? "Remplacer" : "Choisir"}
+				</button>
+				{#if $user.hasPic}
 				<button use:tooltip title="Supprimer l'image" class="btn -secondary -remove -square" on:click={
 					() => {
-						notifications.success('Image supprimé, pensez a sauvegarder', 1000)
+						notifications.success('Image supprimé', 1000)
 						deleteFromlocalStore("pictureUrl");
+						$user.hasPic = false;
+						fileInput.value = "";
 					}
 				}>
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 6V5.2C16 4.0799 16 3.51984 15.782 3.09202C15.5903 2.71569 15.2843 2.40973 14.908 2.21799C14.4802 2 13.9201 2 12.8 2H11.2C10.0799 2 9.51984 2 9.09202 2.21799C8.71569 2.40973 8.40973 2.71569 8.21799 3.09202C8 3.51984 8 4.0799 8 5.2V6M3 6H21M19 6V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -218,7 +242,7 @@
 		<!-- Relative -->
 		<div>
 			<div class="separator" />
-			<div use:accordion={showMore}  class="more {showMore ? '' : 'hidden'}">
+			<div use:accordion={showMore} class="more hidden">
 				<h2>Plus d'options</h2>
 					<!-- svelte-ignore a11y-label-has-associated-control -->
 					<div class="field">
@@ -240,10 +264,8 @@
 								</svg>
 							</label>
 							<div class="inline-btn">
-								<button use:tooltip title="Afficher ou cacher l'annonce" class="btn -secondary -square in-input" on:click={() => {
-									$user.hideAnnouncement = !$user.hideAnnouncement;
-								}}>
-									{#if $user.hideAnnouncement}
+								<button use:tooltip title="Afficher ou cacher l'annonce" disabled={!$user.banner} class="btn -secondary -square in-input" on:click={() => {$user.hideAnnouncement = !$user.hideAnnouncement}}>
+									{#if !$user.hideAnnouncement}
 									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<path d="M2.42012 12.7132C2.28394 12.4975 2.21584 12.3897 2.17772 12.2234C2.14909 12.0985 2.14909 11.9015 2.17772 11.7766C2.21584 11.6103 2.28394 11.5025 2.42012 11.2868C3.54553 9.50484 6.8954 5 12.0004 5C17.1054 5 20.4553 9.50484 21.5807 11.2868C21.7169 11.5025 21.785 11.6103 21.8231 11.7766C21.8517 11.9015 21.8517 12.0985 21.8231 12.2234C21.785 12.3897 21.7169 12.4975 21.5807 12.7132C20.4553 14.4952 17.1054 19 12.0004 19C6.8954 19 3.54553 14.4952 2.42012 12.7132Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 										<path d="M12.0004 15C13.6573 15 15.0004 13.6569 15.0004 12C15.0004 10.3431 13.6573 9 12.0004 9C10.3435 9 9.0004 10.3431 9.0004 12C9.0004 13.6569 10.3435 15 12.0004 15Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -264,6 +286,10 @@
 						<div class="field -inline">
 							<label for="border">Contour</label><input disabled={!$user.banner} id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch">
 						</div>
+						<!-- <div class="field">
+							<label>Police</label>
+							<Dropdown options={fontOptions} obj="font" />
+						</div> -->
 					</fieldset>
 					<div class="field -inline">
 						<label for="advert">Avertissement de sécurité</label><input id="advert" bind:checked={$user.advert} type="checkbox" class="checkbox switch">
@@ -304,7 +330,7 @@
 							</svg>Enregistrer
 						</button>
 						{#if localStore}
-							<button use:tooltip title="Réinitialiser les champs" class="btn -secondary -remove -square" on:click={removeUser}>
+							<button use:tooltip title="Supprimer le profil" class="btn -secondary -remove -square" on:click={removeUser}>
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16 6V5.2C16 4.0799 16 3.51984 15.782 3.09202C15.5903 2.71569 15.2843 2.40973 14.908 2.21799C14.4802 2 13.9201 2 12.8 2H11.2C10.0799 2 9.51984 2 9.09202 2.21799C8.71569 2.40973 8.40973 2.71569 8.21799 3.09202C8 3.51984 8 4.0799 8 5.2V6M3 6H21M19 6V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 								</svg>
@@ -343,13 +369,7 @@
 				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;"><path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg>
 			</span>
 			{:else}
-				<style type="text/css">
-					@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
-					table, tbody, tr, td {
-						font-family: Roboto, 'Helvetica', 'Segoe UI', sans-serif;
-						font-weight: 400;
-					}
-				</style>
+				<style type="text/css">@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');table, tbody, tr, td {font-family: Roboto, 'Helvetica', 'Segoe UI', sans-serif;font-weight: 400;}</style>
 				<table
 				transition:fade={{duration: 200}}
 				width="600"
@@ -359,9 +379,15 @@
 				style="font-family:'Roboto', 'Helvetica', 'Segoe UI', sans-serif; initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 				<tbody>
 					<tr>
-						{#if $user.pictureUrl || $isLoading || $isReady}
-							<td width="100" style="vertical-align:top;padding:0 16px;">
-								<Image src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
+						{#if $user.hasPic}
+							<td width="100" style="vertical-align:top;padding:0 16px; {!loadedImage ? 'position:relative' : ''}">
+								{#if loadedImage}
+									<img out:fade={{duration: 200}} in:fade={{duration: 300}} src={loadedImage.src} alt="avatar" style="border-radius: 10px;border:none; width: 100px;display: inherit;height: 100px;" />
+								{:else}
+									<span in:fade={{duration: 200, delay: 200}} style="width: 100px;height: 100px;display: flex;align-items: center;justify-content: center;top: 0;position: absolute;">
+									<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;"><path fill="#aaa" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg>
+								</span>
+								{/if}
 							</td>
 							<td style="border-left:solid #eaecf0 1px" width="16" />
 						{/if}
@@ -374,11 +400,7 @@
 							<br />
 							<span style="margin-bottom:16px;color:#4C4C4C; display:block;">
 								{$user.position} @
-								<a
-									href="https://www.solware.fr/"
-									data-external="true"
-									style="text-decoration:none !important;color:#075dc9;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;"
-								>
+								<a href="https://www.solware.fr/" data-external="true" style="text-decoration:none !important;color:#075dc9;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;">
 									<span style="text-decoration:none;color:#075dc9;font-weight: 500 !important;">Solware</span>
 								</a>
 							</span>
@@ -449,14 +471,19 @@
 									</tr>
 								</tbody>
 							</table>
-							{#if checkImageUrl($user.banner) && $user.hideAnnouncement === true}
-								<a href={$user.bannerLink ? $user.bannerLink : ''} style="display:block; {$user.advert ? "padding-bottom: 6px;" : ""}">
-									<Image src={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? "border: 1px solid #ddd;" : ''}"/>
-									<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
+							{#if !$user.hideAnnouncement && $user.banner}
+								<a transition:fade={{duration: 200}} href={$user.bannerLink.length > 0 ? $user.bannerLink : null} style="display:block; {$user.advert ? "padding-bottom: 6px;" : ""}">
+									{#if loadedAnnounce}
+									<img src={loadedAnnounce.src} alt="announce banner" style="width: {naturalWidth}px; height: {newHeight}px; border-radius:10px; {$user.border ? "border: 1px solid #ddd;" : ''}">
+									{:else}
+									<span style={"width: 100%;display: flex; align-items:center;height: 100px; justify-content:center;"}>
+										<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;"><path fill="#aaa" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg>
+									</span>
+									{/if}
 								</a>
 							{/if}
 							{#if $user.advert}
-							<span style="color:#aaa;font-size:8pt;">Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.</span>
+							<span transition:fade={{duration: 200}} style="color:#aaa;font-size:8pt;">Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.</span>
 							{/if}
 						</td>
 					</tr>

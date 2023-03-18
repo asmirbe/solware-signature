@@ -1,9 +1,6 @@
-
 <script>
-	// @ts-nocheck
-
 	import { fly } from "svelte/transition";
-	import { notifications } from "./notifications.js";
+	import { notifications } from "$lib/notifications.js";
 
 	export let themes = {
 		default: "default",
