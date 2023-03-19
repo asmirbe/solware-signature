@@ -4,8 +4,8 @@
 	import { onMount, onDestroy } from "svelte";
 	import user, { deleteFromlocalStore , resetToDefault } from "$stores/store.js";
 	import { notifications } from "$lib/notifications.js";
-	import Notification from "../component/Notification.svelte";
-	// import Dropdown from "$components/Dropdown.svelte";
+	import Notification from "../component/notification.svelte";
+	// import Dropdown from "$components/dropdown.svelte";
 	import { accordion } from "$lib/accordion.js";
 	import { tooltip } from "$lib/tooltip.js";
 	import ClipboardJS from "clipboard";
