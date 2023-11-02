@@ -54,7 +54,15 @@ body {
 body {
 	min-height: 100vh;
 	text-rendering: optimizeLegibility;
-	font-family: "Inter", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Helvetica, Arial,
+	font-family:
+		"Inter",
+		-apple-system,
+		BlinkMacSystemFont,
+		Segoe UI,
+		Roboto,
+		Helvetica Neue,
+		Helvetica,
+		Arial,
 		sans-serif;
 	height: 100%;
 	position: relative;
@@ -66,14 +74,10 @@ body {
 }
 
 h1 {
-	font-family: "Inter";
-	font-style: normal;
-	font-weight: 600;
-	font-size: 24px;
-	line-height: 32px;
-	color: #101828;
-	margin-top: 0;
-	margin-bottom: 20px;
+	font-size: 1.5rem;
+	line-height: 2rem;
+	font-weight: 700;
+	letter-spacing: -0.025em;
 }
 .inline-btn {
 	width: 100%;
@@ -158,7 +162,9 @@ h1 {
 					transition: opacity 0.2s ease-in-out;
 					width: 300px;
 					border: 1px solid #e6e6e6;
-					box-shadow: 0px 1px 1px rgba(24, 24, 28, 0.04), 0px 3px 4px rgba(24, 24, 28, 0.04);
+					box-shadow:
+						0px 1px 1px rgba(24, 24, 28, 0.04),
+						0px 3px 4px rgba(24, 24, 28, 0.04);
 					border-radius: 4px;
 					position: absolute;
 					bottom: 100%;
@@ -202,7 +208,6 @@ label {
 	margin: 0;
 	display: flex;
 	align-items: center;
-	padding-bottom: 6px;
 	column-gap: 10px;
 	font-family: "Inter";
 	font-style: normal;
@@ -210,6 +215,10 @@ label {
 	font-size: 14px;
 	line-height: 20px;
 	color: #344054;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 500;
+	line-height: 1;
 }
 .fieldset {
 	padding: 16px;
@@ -220,7 +229,8 @@ label {
 .field {
 	display: flex;
 	width: 100%;
-	flex-direction: column;
+	display: grid;
+	gap: 0.5rem;
 	&.-inline {
 		display: flex;
 		align-items: center;
@@ -242,11 +252,15 @@ label {
 			background-size: 20px;
 			background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23667085' stroke-width='1.66667' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
 			background-repeat: no-repeat;
-			background-position: right 10px top 50%, 0 0;
+			background-position:
+				right 10px top 50%,
+				0 0;
 			&.open {
 				background-color: #fff;
 				border: 1px solid lighten($primary, 10%);
-				box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px rgba($primary, 0.09);
+				box-shadow:
+					0px 1px 2px rgba(16, 24, 40, 0.05),
+					0px 0px 0px 4px rgba($primary, 0.09);
 				outline: none;
 			}
 		}
@@ -263,7 +277,9 @@ label {
 			overflow-y: overlay;
 			display: block;
 			width: 100%;
-			box-shadow: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+			box-shadow:
+				0px 12px 16px -4px rgba(16, 24, 40, 0.08),
+				0px 4px 6px -2px rgba(16, 24, 40, 0.03);
 			border-radius: 8px;
 			span {
 				padding: 10px 10px 10px 8px;
@@ -318,26 +334,39 @@ label {
 		font-family: inherit;
 		width: 100%;
 		padding: 8px 12px;
-		height: 36px;
-		border: 1px solid #d0d5dd;
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+		display: flex;
+		padding-top: 0.5rem;
+		padding-bottom: 0.5rem;
+		padding-left: 0.75rem;
+		padding-right: 0.75rem;
+		border-radius: 0.375rem;
+		border-width: 1px;
+		width: 100%;
+		height: 2.5rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		background-color: transparent;
 		background-color: #ffffff;
-		box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+		border-color: #d0d5dd;
+		border-style: solid;
 		border-radius: 8px;
 		font-weight: 500;
 		color: #101828;
-		transition: 0.2s ease;
+		transition-property: color, background, border;
+		transition-duration: 0.2s;
+		transition-timing-function: ease;
 		font-size: 14px;
+		outline-offset: 2px;
 		&:focus {
+			outline: 2px solid rgb(166, 166, 172);
 			background-color: #fff;
-			border: 1.5px solid #2080f7;
-			box-shadow: 0px 0px 0px 3px rgba(36, 100, 241, 0.2);
-			outline: none;
 		}
 		&::placeholder {
 			color: #667085;
 		}
 		&[disabled] {
-			background: #f9fafb;
+			background: #fafafa;
 			cursor: not-allowed;
 		}
 	}
@@ -365,12 +394,14 @@ label {
 	.sign {
 		min-width: 650px;
 		min-height: 245px;
-		border: 1px solid #eaecf0;
 		display: flex;
 		flex-direction: column;
+		background-color: rgb(255, 255, 255);
 		border-radius: 12px;
-		box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06);
-		padding: 24px 24px 0;
+		box-shadow:
+			rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
+			rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+		padding: 16px 16px 0;
 		background: #fff;
 		&-header {
 			color: #101828;
@@ -433,7 +464,9 @@ h3 {
 	-webkit-user-select: none;
 	-webkit-user-drag: none;
 	width: 100%;
-	box-shadow: 0px 1px 2px -5px rgba(10, 9, 11, 0.03), 0px 1px 2px rgba(10, 9, 11, 0.02);
+	box-shadow:
+		0px 1px 2px -5px rgba(10, 9, 11, 0.03),
+		0px 1px 2px rgba(10, 9, 11, 0.02);
 	cursor: pointer;
 	height: 36px;
 	display: inline-flex;
@@ -447,7 +480,10 @@ h3 {
 	font-weight: 600;
 	font-size: 14px;
 	line-height: 1;
-	transition: 0.2s ease;
+	transition-property: color, background, border;
+	transition-duration: 0.2s;
+	transition-timing-function: ease;
+	outline-offset: 2px;
 	svg,
 	img {
 		width: 18px;
@@ -455,7 +491,10 @@ h3 {
 		stroke: currentColor;
 	}
 	&:focus {
-		box-shadow: 0px 0px 0px 1px #ffffff, 0px 0px 0px 3px #dcdcde;
+		// box-shadow:
+		// 	0px 0px 0px 1px #ffffff,
+		// 	0px 0px 0px 3px #dcdcde;
+		outline: 2px solid rgb(166, 166, 172);
 	}
 	&.-primary {
 		background-color: $primary;
@@ -627,7 +666,10 @@ h3 {
 			p {
 				font-family: verdana, sans-serif;
 				color: #000;
-				font: small/1.5 Arial, Helvetica, sans-serif;
+				font:
+					small/1.5 Arial,
+					Helvetica,
+					sans-serif;
 				margin-top: 0;
 				&:not(:last-child) {
 					margin-bottom: 16px;
@@ -647,8 +689,15 @@ h3 {
 		margin: 12px 16px 0 46px;
 		.fade-btn {
 			color: #0c3b5e;
-			font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
-				"Helvetica Neue", sans-serif;
+			font-family:
+				"Segoe UI",
+				"Segoe UI Web (West European)",
+				"Segoe UI",
+				-apple-system,
+				BlinkMacSystemFont,
+				Roboto,
+				"Helvetica Neue",
+				sans-serif;
 			border: 1px solid #e0e0e0;
 			font-weight: 600;
 			margin-top: 4px;
@@ -706,7 +755,9 @@ h3 {
 			border-radius: 50%;
 			margin: 2px;
 			background: #ffffff;
-			box-shadow: 0px 1px 3px rgba(16, 24, 40, 0.1), 0px 1px 2px rgba(16, 24, 40, 0.06);
+			box-shadow:
+				0px 1px 3px rgba(16, 24, 40, 0.1),
+				0px 1px 2px rgba(16, 24, 40, 0.06);
 			transition: 0.2s ease;
 		}
 		&:not([disabled], :checked):hover {

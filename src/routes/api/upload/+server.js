@@ -1,10 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
-
+import { CLOUDNAME, APIKEY, APISECRET } from '$env/static/private'
 // cloudinary config
 cloudinary.config({
-	cloud_name: 'dshtbs5hm',
-	api_key: '276433938214212',
-	api_secret: 'qTBUdYf6JKGjC4K0yIOR78M0-rI',
+	cloud_name: CLOUDNAME,
+	api_key: APIKEY,
+	api_secret: APISECRET,
 });
 
 /* Here is the explanation for the code above:
@@ -32,7 +32,7 @@ export async function POST(event) {
 			folder: "avatar/",
 			transformation: [
 				{ quality: 100, width: 100, height: 100, gravity: "face", crop: "fill" },
-				{ overlay: "overlay_gi26k0", width: 90, crop: "scale", gravity: "south_west" }
+				{ overlay: "zx3bnjuj4l3cdidexk62", width: 26, height: 26, crop: "scale", gravity: "south_west"}
 			],
 			html_width: 100,
 			html_height: 100
