@@ -1,13 +1,13 @@
 <script>
 	// Importing scss file and svelte store, component and library
 	import "../scss/main.scss";
-	import { debounce } from "../component/util.js";
+	import { debounce, lang } from "../component/util.js";
 	import { browser } from "$app/environment";
-	import { onMount, onDestroy } from "svelte";
+	import { onMount, onDestroy, afterUpdate } from "svelte";
 	import user, { updateInlocalStore, resetToDefault } from "../store.js";
 	import { notifications } from "../component/notifications.js";
 	import Notification from "../component/notification.svelte";
-	// import Dropdown from "../component/dropdown.svelte";
+	import Dropdown from "../component/dropdown.svelte";
 	import { accordion } from "../component/accordion.js";
 	// import Tooltip from "../component/tooltip.svelte";
 	import { tooltip } from "../component/tooltip.js";
@@ -24,9 +24,19 @@
 		showMore = false,
 		clipboard,
 		isLoading = false,
-		delay = 300;
+		delay = 250;
 
-	onMount(async () => {
+	let langOptions = [
+		{ id: 0, name: "Aucun" },
+		{ id: 1, name: "Français" },
+		{ id: 2, name: "Anglais" },
+		{ id: 3, name: "Portugais" },
+		{ id: 4, name: "Espagnol" },
+		{ id: 5, name: "Italien" },
+	];
+
+
+	onMount(() => {
 		localStorage ? (signLoading = false) : (signLoading = true);
 		const images = document.querySelectorAll("img[data-src]");
 		images.forEach((img) => {
@@ -49,21 +59,6 @@
 			clipboard.off("success", handleSuccess);
 		}
 	});
-
-	// Save data to local storage
-	// const asyncLocalStorage = {
-	// 	setItem: function (key, value) {
-	// 		return Promise.resolve().then(function () {
-	// 			localStorage.setItem(key, value);
-	// 		});
-	// 	},
-	// 	removeItem: function (key) {
-	// 		return Promise.resolve().then(function () {
-	// 			console.log("Removing item:", key); // Add this
-	// 			localStorage.removeItem(key);
-	// 		});
-	// 	},
-	// };
 
 	async function saveData() {
 		updateInlocalStore("saved", true);
@@ -109,30 +104,33 @@
 	// upload image
 	async function uploadFunction(image, input) {
 		if (!image) return;
-		isLoading = true;
+
 		const data = {};
-		data["image"] = await getBase64(image);
-		try {
-			const res = await fetch(`/api/upload`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify(data),
-			});
-			const responseJson = await res.json();
-			if (responseJson.error) {
-				notifications.warning(responseJson.error, 1000);
-			} else {
-				updateInlocalStore("pictureUrl", responseJson.secure_url);
-			}
-			input.value = null;
-			isLoading = false;
-			return responseJson.secure_url;
-		} catch (error) {
-			console.log(error);
-		}
+		const base64 = (data["image"] = await getBase64(image));
+		updateInlocalStore("previewImage", base64);
+		// updateInlocalStore("pictureUrl", resultBase64);
+
+		// try {
+		// 	const res = await fetch(`/api/upload`, {
+		// 		method: "POST",
+		// 		headers: {
+		// 			"Content-Type": "application/json",
+		// 			Accept: "application/json",
+		// 		},
+		// 		body: JSON.stringify(data),
+		// 	});
+		// 	const responseJson = await res.json();
+		// 	if (responseJson.error) {
+		// 		notifications.warning(responseJson.error, 1000);
+		// 	} else {
+		// 		updateInlocalStore("pictureUrl", responseJson.secure_url);
+		// 	}
+		// 	input.value = null;
+		// 	isLoading = false;
+		// 	return responseJson.secure_url;
+		// } catch (error) {
+		// 	console.log(error);
+		// }
 	}
 
 	function checkImageUrl(url) {
@@ -187,8 +185,11 @@
 			<div class="input-file {$user.pictureUrl ? 'active' : ''}">
 				<input tabindex="-1" id="uploadFile" type="file" bind:files accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif" bind:this={fileInput} on:change={(e) => uploadFunction(files[0], e.target)} />
 				<div class="inline-btn">
-					<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>{$user.pictureUrl ? "Remplacer" : "Choisir"}</button>
-					{#if $user.pictureUrl}
+
+					<button for="uploadFile" class="btn -secondary" on:click={() => fileInput.click()}>
+						{$user.pictureUrl || $user.previewImage ? "Remplacer" : "Choisir"}
+					</button>
+					{#if $user.pictureUrl || $user.previewImage}
 						<button
 							use:tooltip
 							title="Supprimer l'image"
@@ -196,6 +197,7 @@
 							on:click={() => {
 								notifications.success("Image supprimé, pensez a sauvegarder", 1000);
 								updateInlocalStore("pictureUrl", null);
+								updateInlocalStore("previewImage", null);
 							}}
 						>
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -233,6 +235,17 @@
 			/>
 		</div>
 		<div class="field">
+			<label for="phone">Téléphone entreprise</label>
+			<input
+				type="tel"
+				pattern="^9[0-9]{7}"
+				size="10"
+				placeholder="Numéro téléphone"
+				id="phone"
+				bind:value={$user.bookACall}
+			/>
+		</div>
+		<div class="field">
 			<div class="field -inline">
 				<label for="phoneMobile">Téléphone mobile</label>
 				<input id="border" bind:checked={$user.mobilePhoneCheckbox} type="checkbox" class="checkbox switch" />
@@ -254,7 +267,7 @@
 		<!-- Relative -->
 		<div>
 			<div class="separator" />
-			<div use:accordion={showMore} class="more {showMore ? '' : 'hidden'}">
+			<div>
 				<h2>Plus d'options</h2>
 				<!-- svelte-ignore a11y-label-has-associated-control -->
 				<div class="field">
@@ -318,14 +331,15 @@
 						<input disabled={!$user.banner} id="border" bind:checked={$user.border} type="checkbox" class="checkbox switch" />
 					</div>
 				</fieldset>
-				<div class="field -inline">
+				<div class="field">
 					<label for="advert">Avertissement de sécurité</label>
-					<input id="advert" bind:checked={$user.advert} type="checkbox" class="checkbox switch" />
+					<Dropdown opts={langOptions} obj="advert" />
+					<!-- <input id="advert" bind:checked={$user.advert} type="checkbox" class="checkbox switch" /> -->
 				</div>
 			</div>
 			<footer>
 				<div class="buttons-group">
-					<button
+					<!-- <button
 						on:click={() => {
 							showMore = !showMore;
 						}}
@@ -336,7 +350,7 @@
 							<path d="M4 6.75H20.5M6.75 12H18.75M8.25 17.25H16.25" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 						</svg>
 						{showMore ? "Moins d'options" : "Plus d'options"}
-					</button>
+					</button> -->
 					<!-- <button class="copyToClipboard btn -primary" type="button" data-clipboard-target=".sign-content">
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path
@@ -351,16 +365,19 @@
 					</button> -->
 					<button class="copyToClipboard btn -primary" type="button" data-clipboard-target=".sign-content">Générer</button>
 					<div class="inline-btn">
-						<button on:click={saveOrRemoveData} class="copyToClipboard btn -secondary" type="button">
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75v6.75m0 0l-3-3m3 3l3-3m-8.25 6a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
-							</svg>
-							{#if $user.saved === true}
+						{#if $user.saved === true}
+							<button on:click={saveOrRemoveData} class="copyToClipboard btn -secondary" type="button">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+									/>
+								</svg>
+
 								Supprimer
-							{:else}
-								Enregistrer
-							{/if}
-						</button>
+							</button>
+						{/if}
 						<!-- {#if localStore}
 							<button use:tooltip title="Réinitialiser les champs" class="btn -secondary -remove -square" on:click={removeUser}>
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -375,6 +392,7 @@
 					</div>
 				</div>
 				<div class="desc">
+					<span class="news">New update</span>
 					<p>
 						Veuillez remplir les informations demandées et coller le contenu dans l'espace <a href="./outlook.png" target="_blank"><u>signature électronique</u></a>
 						d'Outlook.
@@ -414,7 +432,7 @@
 						<tr>
 							{#if $user.pictureUrl || isLoading === true}
 								<td width="100" style="vertical-align:top;padding:0 1em;">
-									<Image {isLoading} src={$user.pictureUrl} alt="avatar" style="border-radius: 12px; border:none" />
+									<Image {isLoading} src={$user.pictureUrl} alt="avatar" style="width: 100px; height: 100px; border-radius: 12px; border:none" />
 								</td>
 								<td style="border-left:solid #eaecf0 1px" width="16" />
 							{/if}
@@ -428,7 +446,6 @@
 										<span style="text-decoration:none;color:#0079fe;font-weight: 600 !important;">Solware</span>
 									</a>
 								</span>
-								<!-- tel -->
 								{#if $user.phone}
 									<span style="color:#8C8C8C!important;margin: 6px 0 0;">
 										<a href="tel:{$user.phone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
@@ -456,9 +473,9 @@
 									<br />
 									Dardilly, France 69570
 								</span>
-								<!-- {#if $user.bookACall}
-								<a href="https://meetings.hubspot.com/todd136" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 1em 0 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #005AEE;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
-								{/if} -->
+								{#if $user.bookACall}
+									<a href={$user.bookACall} rel="noreferrer" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 1em 0 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #005AEE;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
+								{/if}
 								<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 1em; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 12px;' : ''}">
 									<tbody>
 										<tr>
@@ -491,9 +508,9 @@
 										<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
 									</a>
 								{/if}
-								{#if $user.advert}
+								{#if $user.advert != 0}
 									<span style="color:#aaa;font-size:8pt;">
-										Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.
+										{lang[$user.advert]}
 									</span>
 								{/if}
 							</td>

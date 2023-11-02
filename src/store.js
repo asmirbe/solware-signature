@@ -3,6 +3,7 @@ import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 const defaultValue = {
+	preview: false,
 	saved: false,
 	name: "Prénom Nom",
 	position: "Poste",
@@ -10,6 +11,7 @@ const defaultValue = {
 	phone: "04 72 52 70 70",
 	mobilePhone: "",
 	border: false,
+	bookACall: false,
 	advert: false,
 	banner: null,
 	mobilePhoneCheckbox: false,
