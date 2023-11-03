@@ -6,7 +6,7 @@
 	export let style = "";
 	export let alt = "";
 	export let banner = false;
-	export let isLoading = false;
+	export let isLoading;
 
 	let loaded = false;
 	let naturalWidth = 0;

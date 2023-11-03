@@ -1,6 +1,6 @@
 <script>
 	// @ts-nocheck
-	import user from "../store.js";
+	import user from "$lib/store.js";
 	let show = false;
 	let container;
 	let selected;
