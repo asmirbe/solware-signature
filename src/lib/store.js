@@ -5,10 +5,11 @@ import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 export const isLoading = writable(false);
-export const signLoading = writable(false);
+export const signLoading = writable(true);
 
 const defaultValue = {
 	userUniqueToken: crypto.randomUUID(),
+	brand: 0,
 	acceptRgpd: false,
 	preview: false,
 	name: "Prénom Nom",
@@ -42,6 +43,7 @@ const debouncedSaveToLocalStorage = debounce((currentValue) => {
 
 if (browser) {
   user.subscribe(debouncedSaveToLocalStorage);
+	signLoading.set(false);
 }
 
 export const updateInlocalStore = (name, value) => {
@@ -57,10 +59,12 @@ export const updateInlocalStore = (name, value) => {
 
 export const resetToDefault = () => {
 	try {
-		user.set(defaultValue);
+		// user.set(defaultValue);
+		user.set(Object.assign({}, defaultValue))
+		notifications.info("Le formulaire est réinitialisé", 1000)
 	} catch (error) {
 		console.error("Failed to update data in localStorage:", error);
 	}
 };
 
-export default user;
+export default user

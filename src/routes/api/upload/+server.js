@@ -1,7 +1,12 @@
-import { json } from '@sveltejs/kit'
-import { removeSpaces } from "../../../lib/util.js"
-import { v2 as cloudinary } from 'cloudinary';
-import { CLOUDNAME, APIKEY, APISECRET } from '$env/static/private'
+import { json } from "@sveltejs/kit";
+import { removeSpaces } from "../../../lib/util.js";
+import { v2 as cloudinary } from "cloudinary";
+import { CLOUDNAME, APIKEY, APISECRET } from "$env/static/private";
+
+const userCallCounts = {}; // This will store how many times each user has called the function
+const callLimitPerUser = 5; // For example, let's limit to 5 calls per user
+const timeWindow = 3600000;
+
 // cloudinary config
 cloudinary.config({
 	cloud_name: CLOUDNAME,
@@ -21,28 +26,41 @@ cloudinary.config({
 	d. The quality is set to 100, which means that the image is uploaded without any compression
 	e. The crop is set to fill, which means that the image is cropped to the exact 100x100 pixels
 6. The response is sent back to the client, as a JSON object with the secure URL property */
-export async function POST({request}) {
+export async function POST({ request }) {
 	const data = await request.json();
 	const fullname = removeSpaces(data.fullname);
 	const token = removeSpaces(data.token);
+
+	// Rate limiting logic
+	if (!userCallCounts[token]) {
+		userCallCounts[token] = { count: 0, timestamp: Date.now() };
+	} else {
+		if (Date.now() - userCallCounts[token].timestamp > timeWindow) {
+			userCallCounts[token] = { count: 0, timestamp: Date.now() };
+		} else if (userCallCounts[token].count >= callLimitPerUser) {
+			return new Response(JSON.stringify({ error: "Limite dépassée." }));
+		}
+	}
+	userCallCounts[token].count++;
+
 	const file = data.avatar;
+
 	if (!file) {
 		return new Response(JSON.stringify({ error: "No image provided." }));
 	}
 
 	try {
-		let res = await cloudinary.uploader.upload(file, {
+		let response = await cloudinary.uploader.upload(file, {
 			folder: "avatar/",
 			transformation: [
 				{ quality: 100, width: 100, height: 100, gravity: "face", crop: "fill" },
-				{ overlay: "zx3bnjuj4l3cdidexk62", width: 26, height: 26, crop: "scale", gravity: "south_west"}
+				{ overlay: "zx3bnjuj4l3cdidexk62", width: 26, height: 26, crop: "scale", gravity: "south_west" },
 			],
 			public_id: `${fullname}-${token}-${Date.now()}`,
 			html_width: 100,
-			html_height: 100
+			html_height: 100,
 		});
-		console.log(res);
-		return new Response(JSON.stringify({ secure_url: res.secure_url }));
+		return new Response(JSON.stringify({ secure_url: response.secure_url }));
 	} catch (err) {
 		return new Response(JSON.stringify({ error: err }));
 	}

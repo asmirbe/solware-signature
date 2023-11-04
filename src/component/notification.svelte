@@ -18,7 +18,7 @@
 	{#each $notifications as notification (notification.id)}
 		<div
 			class="toast {themes[notification.type]}"
-			transition:fly={{ y: -30 }}
+			transition:fly={{ y: 0 }}
 		>
 			<div class="content">{notification.message}</div>
 			{#if notification.icon}<i class={notification.icon} />{/if}
@@ -28,10 +28,9 @@
 
 <style lang="scss">
 	.notifications {
-		position: fixed;
+		position: absolute;
 		bottom: 20px;
-		left: 0;
-		right: 0;
+		left: 20px;
 		margin: 0 auto;
 		padding: 0;
 		z-index: 9999999;
@@ -46,7 +45,11 @@
 		flex: 0 0 auto;
 		border-radius: 8px;
 		margin-bottom: 10px;
-		box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+		box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+		&.info {
+			border: 1px solid #ededed;
+    background: #f9fafb;
+		}
 		&.success {
 			color: #fff;
 			background-color: #1877f2;
@@ -55,9 +58,9 @@
 			color: #fff;
 			background: #fec84b;
 		}
-		&.error {
+		&.danger {
 			color: #fff;
-			background: #b42318;
+			background: rgb(224, 36, 36);
 		}
 	}
 

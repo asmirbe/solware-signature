@@ -14,3 +14,8 @@ export let langOptions = [
 	{ id: 4, name: "Espagnol" },
 	{ id: 5, name: "Italien" },
 ];
+
+export let brandOptions = [
+	{ id: 0, name: "Solware", link: "https://solware.fr/" },
+	{ id: 1, name: "Solware Auto", link:"https://winmotornext.com/" }
+];

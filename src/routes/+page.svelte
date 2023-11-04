@@ -2,12 +2,12 @@
 	// Importing scss file and svelte store, component and library
 	import "../scss/main.scss";
 	import { onMount, onDestroy } from "svelte";
-	import user, { updateInlocalStore, resetToDefault } from "$lib/store";
+	import user from "$lib/store";
 	import Notification from "$components/notification.svelte";
 	import ClipboardJS from "clipboard";
 	import Image from "$components/image.svelte";
 	import { fade } from "svelte/transition";
-	import { lang } from "$lib/constants";
+	import { lang, brandOptions } from "$lib/constants";
 	import { formatPhone, loadImage, checkImageUrl, getBase64, objectsAreEqual } from "$lib/util";
 	import { isLoading, signLoading } from "$lib/store";
 	import Sidebar from "$components/Sidebar.svelte";
@@ -36,131 +36,134 @@
 			// clipboard.off("success", handleSuccess);
 		}
 	});
+
+	$: selectedLink = brandOptions.find(brand => brand.id === $user.brand) || brandOptions[0];
+
 </script>
 
 <svelte:head>
 	<title>Email signature - Solware</title>
 </svelte:head>
 
-<Sidebar />
-<Notification />
-
-<div class="container">
-	<div class="signature">
-		<div class="card">
-			<header class="card-header">Votre signature</header>
-			<div class="card-content">
-				{#if $signLoading}
-					<span
-						style="
+{#if !$signLoading}
+	<Sidebar />
+	<div class="container">
+		<div class="signature">
+			<Notification />
+			<div class="card">
+				<header class="card-header">Votre signature</header>
+				<div class="card-content">
+					{#if $signLoading}
+						<span
+							style="
 			width: 100%;
 			height: 190px;
 			display: flex;
 			align-items: center;
 			justify-content: center;"
-					>
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;">
-							<path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite" /></path>
-						</svg>
-					</span>
-				{:else}
-					<table transition:fade={{ duration: 200 }} width="600" cellspacing="0" cellpadding="0" border="0" style="padding: 32px 0;font-size:13px;font-weight: 500;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
-						<tbody>
-							<tr>
-								{#if $user.pictureUrl || $isLoading === true}
-									<td width="100" style="vertical-align:top;padding:0 1em;">
-										<Image isLoading={$isLoading} src={$user.pictureUrl} alt="avatar" style="width: 100px; height: 100px; border-radius: 10px; border:none" />
-									</td>
-									<td style="border-left:solid #eaecf0 1px" width="16" />
-								{/if}
-								<td style="vertical-align: top; text-align:left;color:#000000; text-align:left">
-									<div style="orphans: 2; widows: 2;">
-										<span style="padding-top: 10px; line-height:1; color:#000000;font-size:15px;">
-											<b>{$user.name}</b>
-										</span>
-									</div>
-									<div style="orphans: 2; widows: 2;">
-										<span style="line-height: 1.8;color:#4C4C4C; font-weight:500;">
-											{$user.position} •
-											<a href="https://www.solware.fr/" data-external="true" style="text-decoration:none !important;color:#0079fe;font: 600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; !important;">
-												<span style="text-decoration:none;color:#0079fe;font-weight: 600 !important;">Solware</span>
-											</a>
-										</span>
-									</div>
-									<div style="orphans: 2; widows: 2;">
-										<span
-											style="color:#8C8C8C; line-height: 1.6; margin: 6px 0; display:inline-block;     font-size: 13px;
-									font-weight: 500;"
-										>
-											68 Bis Chemin du Moulin Carron
-											<br />
-											Dardilly, France 69570
-										</span>
-									</div>
-									<div style="orphans: 2; widows: 2;">
-										{#if $user.bookACall}
-											<a href={$user.bookACall} rel="noreferrer" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 6px 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #0079fe;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
-										{/if}
-										{#if $user.phone}
-											<span style="color:#8C8C8C!important;margin: 6px 0 0;">
-												<a href="tel:{$user.phone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
-													<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.phone}</span>
-												</a>
-												{#if $user.mobilePhoneCheckbox && $user.mobilePhone.length}
-													•
-													<a href="tel:{$user.mobilePhone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
-														<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.mobilePhone}</span>
-													</a>
-												{/if}
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;">
+								<path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite" /></path>
+							</svg>
+						</span>
+					{:else}
+						<table transition:fade={{ duration: 200 }} width="600" cellspacing="0" cellpadding="0" border="0" style="padding: 32px 0;font-size:13px;font-weight: 500;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
+							<tbody>
+								<tr>
+									{#if $user.pictureUrl || $isLoading === true}
+										<td width="100" style="vertical-align:top;padding:0 1em;">
+											<Image isLoading={$isLoading} src={$user.pictureUrl} alt="avatar" style="width: 100px; height: 100px; border-radius: 10px; border:none" />
+										</td>
+										<td style="border-left:solid #eaecf0 1px" width="16" />
+									{/if}
+									<td style="vertical-align: top; text-align:left;color:#000000; text-align:left">
+										<div style="orphans: 2; widows: 2;">
+											<span style="padding-top: 10px; line-height:1; color:#000000;font-size:15px;">
+												<b>{$user.name}</b>
 											</span>
-										{/if}
-										{#if $user.email}
-											<a href="mailto:{$user.phone}" data-external="true" style="display: block; text-decoration:none !important;color: rgb(140, 140, 140);">
-												<span style="text-decoration:none;color: rgb(140, 140, 140); line-height: 1.5;">{$user.email}</span>
+										</div>
+										<div style="orphans: 2; widows: 2;">
+											<span style="line-height: 1.8;color:#4C4C4C; font-weight:500;">
+												{$user.position} •
+												<a href={selectedLink.link} data-external="true" style="text-decoration:none !important;color:#0079fe;font: 600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; !important;">
+													<span style="text-decoration:none;color:#0079fe;font-weight: 600 !important;">{selectedLink.name}</span>
+												</a>
+											</span>
+										</div>
+										<div style="orphans: 2; widows: 2;">
+											<span
+												style="color:#8C8C8C; line-height: 1.6; margin: 6px 0; display:inline-block;     font-size: 13px;
+									font-weight: 500;"
+											>
+												68 bis Chem. du Moulin Carron
+												<br />
+												69570 Dardilly
+											</span>
+										</div>
+										<div style="orphans: 2; widows: 2;">
+											{#if $user.bookACall}
+												<a href={$user.bookACall} rel="noreferrer" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 6px 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #0079fe;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
+											{/if}
+											{#if $user.phone}
+												<span style="color:#8C8C8C!important;margin: 6px 0 0;">
+													<a href="tel:{$user.phone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
+														<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.phone}</span>
+													</a>
+													{#if $user.mobilePhoneCheckbox && $user.mobilePhone.length}
+														•
+														<a href="tel:{$user.mobilePhone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
+															<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.mobilePhone}</span>
+														</a>
+													{/if}
+												</span>
+											{/if}
+											{#if $user.email}
+												<a href="mailto:{$user.email}" data-external="true" style="display: block; text-decoration:none !important;color: rgb(140, 140, 140);">
+													<span style="text-decoration:none;color: rgb(140, 140, 140); line-height: 1.5;">{$user.email}</span>
+												</a>
+											{/if}
+										</div>
+										<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 8px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 8px;' : ''}">
+											<tbody>
+												<tr>
+													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+														<a href="https://www.facebook.com/solwareauto/" target="_blank" rel="noreferrer" data-external="true">
+															<img width="50%" alt="social icon facebook" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698764174/exe3v7typk2ljoaxlrwu.png" />
+														</a>
+													</td>
+													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+														<a href="https://www.youtube.com/@solwaregroup" target="_blank" rel="noreferrer" data-external="true">
+															<img width="50%" alt="social icon youtube" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/wbuzww8stmff3v26ruvv.png" />
+														</a>
+													</td>
+													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+														<a href="https://twitter.com/solwareauto" target="_blank" rel="noreferrer" data-external="true">
+															<img width="50%" alt="social icon twitter" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/uxuaujbvbwg7bcecxpqq.png" />
+														</a>
+													</td>
+													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
+														<a href={$user.linkedin || "https://www.linkedin.com/company/solware-auto/"} target="_blank" rel="noreferrer" data-external="true">
+															<img width="50%" alt="social icon linkedin" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/o86mwkuj02awbnh4nryv.png" />
+														</a>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										{#if checkImageUrl($user.banner) && $user.hideAnnouncement === true}
+											<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block; {$user.advert ? 'padding-bottom: 6px;' : ''}">
+												<Image srcBanner={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? 'border: 1px solid #ddd;' : ''}" />
 											</a>
 										{/if}
-									</div>
-									<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 8px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 8px;' : ''}">
-										<tbody>
-											<tr>
-												<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
-													<a href="https://www.facebook.com/solwareauto/" target="_blank" rel="noreferrer" data-external="true">
-														<img width="50%" alt="social icon facebook" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698764174/exe3v7typk2ljoaxlrwu.png" />
-													</a>
-												</td>
-												<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
-													<a href="https://www.youtube.com/@solwaregroup" target="_blank" rel="noreferrer" data-external="true">
-														<img width="50%" alt="social icon youtube" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/wbuzww8stmff3v26ruvv.png" />
-													</a>
-												</td>
-												<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
-													<a href="https://twitter.com/solwareauto" target="_blank" rel="noreferrer" data-external="true">
-														<img width="50%" alt="social icon twitter" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/uxuaujbvbwg7bcecxpqq.png" />
-													</a>
-												</td>
-												<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
-													<a href={$user.linkedin || "https://www.linkedin.com/company/solware-auto/"} target="_blank" rel="noreferrer" data-external="true">
-														<img width="50%" alt="social icon linkedin" style="border:none" src="https://res.cloudinary.com/dshtbs5hm/image/upload/v1698763890/o86mwkuj02awbnh4nryv.png" />
-													</a>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-									{#if checkImageUrl($user.banner) && $user.hideAnnouncement === true}
-										<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block; {$user.advert ? 'padding-bottom: 6px;' : ''}">
-											<Image srcBanner={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? 'border: 1px solid #ddd;' : ''}" />
-											<!-- <img border="0"  data-src={$user.banner} width="410" height="auto"> -->
-										</a>
-									{/if}
-									{#if $user.advert != 0}
-										<span style="font-size: 10px; color: #aaa;font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;">CONFIDENTIALITY NOTICE — {lang[$user.advert]}</span>
-									{/if}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				{/if}
+										{#if $user.advert != 0}
+											<span style="font-size: 10px; color: #aaa;font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;">CONFIDENTIALITY NOTICE — {lang[$user.advert]}</span>
+										{/if}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+{/if}
