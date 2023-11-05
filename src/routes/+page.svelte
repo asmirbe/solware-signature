@@ -37,7 +37,7 @@
 		}
 	});
 
-	$: selectedLink = brandOptions.find(brand => brand.id === $user.brand) || brandOptions[0];
+	$: selectedLink = brandOptions.find(brand => brand.id === $user.preferences.brand) || brandOptions[0];
 
 </script>
 
@@ -70,21 +70,21 @@
 						<table transition:fade={{ duration: 200 }} width="600" cellspacing="0" cellpadding="0" border="0" style="padding: 32px 0;font-size:13px;font-weight: 500;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'">
 							<tbody>
 								<tr>
-									{#if $user.pictureUrl || $isLoading === true}
+									{#if $user.personalInfo.pictureUrl || $isLoading === true}
 										<td width="100" style="vertical-align:top;padding:0 1em;">
-											<Image isLoading={$isLoading} src={$user.pictureUrl} alt="avatar" style="width: 100px; height: 100px; border-radius: 10px; border:none" />
+											<Image isLoading={$isLoading} src={$user.personalInfo.pictureUrl} alt="avatar" style="width: 100px; height: 100px; border-radius: 10px; border:none" />
 										</td>
 										<td style="border-left:solid #eaecf0 1px" width="16" />
 									{/if}
 									<td style="vertical-align: top; text-align:left;color:#000000; text-align:left">
 										<div style="orphans: 2; widows: 2;">
 											<span style="padding-top: 10px; line-height:1; color:#000000;font-size:15px;">
-												<b>{$user.name}</b>
+												<b>{$user.personalInfo.name}</b>
 											</span>
 										</div>
 										<div style="orphans: 2; widows: 2;">
 											<span style="line-height: 1.8;color:#4C4C4C; font-weight:500;">
-												{$user.position} •
+												{$user.personalInfo.position} •
 												<a href={selectedLink.link} data-external="true" style="text-decoration:none !important;color:#0079fe;font: 600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; !important;">
 													<span style="text-decoration:none;color:#0079fe;font-weight: 600 !important;">{selectedLink.name}</span>
 												</a>
@@ -101,29 +101,29 @@
 											</span>
 										</div>
 										<div style="orphans: 2; widows: 2;">
-											{#if $user.bookACall}
-												<a href={$user.bookACall} rel="noreferrer" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 6px 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #0079fe;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
+											{#if $user.features.bookACall}
+												<a href={$user.features.bookACall} rel="noreferrer" target="_blank" style="max-width:260px;display: block;padding: .65em 1em;margin: 6px 0;text-align: center;text-decoration:none;color: white;font-weight: bold;border-radius: 6px;background-color: #0079fe;border: 1px solid rgba(0, 0, 0, .1);">Schedule 15 minutes with me</a>
 											{/if}
-											{#if $user.phone}
+											{#if $user.personalInfo.contact.phone}
 												<span style="color:#8C8C8C!important;margin: 6px 0 0;">
-													<a href="tel:{$user.phone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
-														<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.phone}</span>
+													<a href="tel:{$user.personalInfo.contact.phone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
+														<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.personalInfo.contact.phone}</span>
 													</a>
-													{#if $user.mobilePhoneCheckbox && $user.mobilePhone.length}
+													{#if $user.preferences.mobilePhoneCheckbox && $user.personalInfo.contact.mobilePhone.length}
 														•
-														<a href="tel:{$user.mobilePhone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
-															<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.mobilePhone}</span>
+														<a href="tel:{$user.personalInfo.contact.mobilePhone}" data-external="true" style="text-decoration:none !important;color: rgb(140, 140, 140);">
+															<span style="text-decoration: none;color: #4c4c4c; line-height: 1.5;">{$user.personalInfo.contact.mobilePhone}</span>
 														</a>
 													{/if}
 												</span>
 											{/if}
-											{#if $user.email}
-												<a href="mailto:{$user.email}" data-external="true" style="display: block; text-decoration:none !important;color: rgb(140, 140, 140);">
-													<span style="text-decoration:none;color: rgb(140, 140, 140); line-height: 1.5;">{$user.email}</span>
+											{#if $user.personalInfo.contact.email}
+												<a href="mailto:{$user.personalInfo.contact.email}" data-external="true" style="display: block; text-decoration:none !important;color: rgb(140, 140, 140);">
+													<span style="text-decoration:none;color: rgb(140, 140, 140); line-height: 1.5;">{$user.personalInfo.contact.email}</span>
 												</a>
 											{/if}
 										</div>
-										<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 8px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 8px;' : ''}">
+										<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 8px; border-collapse: initial; {checkImageUrl($user.features.banner.link) || $user.advert ? 'padding-bottom: 8px;' : ''}">
 											<tbody>
 												<tr>
 													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
@@ -149,13 +149,13 @@
 												</tr>
 											</tbody>
 										</table>
-										{#if checkImageUrl($user.banner) && $user.hideAnnouncement === true}
-											<a href={$user.bannerLink ? $user.bannerLink : null} style="display:block; {$user.advert ? 'padding-bottom: 6px;' : ''}">
-												<Image srcBanner={$user.banner} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.border ? 'border: 1px solid #ddd;' : ''}" />
+										{#if checkImageUrl($user.features.banner.image) && $user.features.banner.visible}
+											<a href={$user.features.banner.link ? $user.features.banner.link : null} style="display:block; margin-top: 1em; {$user.features.banner.visible ? 'margin-bottom: 6px;' : ''}">
+												<Image srcBanner={$user.features.banner.image} banner="true" alt="bannière d'annonce" style="border-radius:10px;{$user.features.banner.border ? 'border: 1px solid #ddd;' : ''}" />
 											</a>
 										{/if}
-										{#if $user.advert != 0}
-											<span style="font-size: 10px; color: #aaa;font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;">CONFIDENTIALITY NOTICE — {lang[$user.advert]}</span>
+										{#if $user.preferences.advert != 0}
+											<span style="font-size: 10px; line-height: 14px; color: #aaa;margin-top: .75em; display: inline-block;">CONFIDENTIALITY NOTICE — {lang[$user.preferences.advert]}</span>
 										{/if}
 									</td>
 								</tr>
