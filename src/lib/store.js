@@ -1,6 +1,6 @@
 // store.js
 import { debounce, objectsAreEqual } from "./util.js";
-import { notifications } from "../component/notifications.js";
+import { notifications } from "$components/notification";
 import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
@@ -88,7 +88,7 @@ export const resetToDefault = () => {
 	try {
 		// user.set(defaultValue);
 		user.set(Object.assign({}, defaultValue));
-		notifications.info("Le formulaire est réinitialisé", 1000);
+		notifications.info("Réinitialisation complète", 1000);
 	} catch (error) {
 		console.error("Failed to update data in localStorage:", error);
 	}

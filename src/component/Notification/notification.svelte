@@ -1,9 +1,8 @@
-
 <script>
 	// @ts-nocheck
 
 	import { fly } from "svelte/transition";
-	import { notifications } from "./notifications.js";
+	import { Notification, notifications } from "./index";
 
 	export let themes = {
 		default: "default",
@@ -14,17 +13,16 @@
 	};
 </script>
 
-<div class="notifications">
-	{#each $notifications as notification (notification.id)}
-		<div
-			class="toast {themes[notification.type]}"
-			transition:fly={{ y: 0 }}
-		>
-			<div class="content">{notification.message}</div>
-			{#if notification.icon}<i class={notification.icon} />{/if}
-		</div>
-	{/each}
-</div>
+{#if $notifications.length}
+	<div class="notifications">
+		{#each $notifications as notification (notification.id)}
+			<div class="toast {themes[notification.type]}" transition:fly={{ y: 0 }}>
+				<div class="content">{notification.message}</div>
+				{#if notification.icon}<i class={notification.icon} />{/if}
+			</div>
+		{/each}
+	</div>
+{/if}
 
 <style lang="scss">
 	.notifications {
@@ -48,7 +46,7 @@
 		box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 		&.info {
 			border: 1px solid #ededed;
-    background: #f9fafb;
+			background: #fff;
 		}
 		&.success {
 			color: #fff;

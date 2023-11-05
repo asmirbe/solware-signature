@@ -1,4 +1,5 @@
 <script>
+	import "./style.scss";
 	export let text = "";
 </script>
 

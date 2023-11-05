@@ -1,15 +1,14 @@
 <script>
 	import { onMount } from "svelte";
 	import user, { updateInlocalStore, resetToDefault } from "$lib/store";
-	import { notifications } from "$components/notifications";
-	import Notification from "$components/notification.svelte";
+	// import { notifications } from "$components/notification";
 	import Dropdown from "$components/dropdown.svelte";
 	import { tooltip } from "$components/tooltip";
 	import Image from "$components/image.svelte";
 	import { langOptions, brandOptions } from "$lib/constants";
 	import { formatPhone, loadImage, checkImageUrl, getBase64 } from "$lib/util";
 	import { isLoading, signLoading } from "$lib/store";
-	import { fade } from "svelte/transition";
+	import { fade, slide } from "svelte/transition";
 	import { Svrollbar } from "svrollbar"; // Variables
 	let files,
 		fileInput,
@@ -19,11 +18,11 @@
 
 	async function saveData() {
 		updateInlocalStore("saved", true);
-		notifications.success("Profil sauvegardé", 1000);
+		// notifications.success("Profil sauvegardé", 1000);
 	}
 
 	function handleSuccess(e) {
-		notifications.success("Copié dans le presse-papier", 1000);
+		// notifications.success("Copié dans le presse-papier", 1000);
 		e.clearSelection();
 	}
 
@@ -35,14 +34,13 @@
 
 	async function handleSubmit(event) {
 		event.preventDefault();
-		if (!$user.preferences.acceptRgpd) return notifications.info("Désolé, il est obligatoire d'accepter les condition d'utilisation.", 5000);
-		if (!$user.identifiers.userUniqueToken && !$user.identifiers.userUniqueToken?.length > 0) return notifications.warning("Une erreur est survenu, merci de vider votre cache ou demande de l'aide.", 2000);
+		// if (!$user.preferences.acceptRgpd) return notifications.info("Désolé, il est obligatoire d'accepter les condition d'utilisation.", 5000);
+		// if (!$user.identifiers.userUniqueToken && !$user.identifiers.userUniqueToken?.length > 0) return notifications.warning("Une erreur est survenu, merci de vider votre cache ou demande de l'aide.", 2000);
 		if ($user.features.previewImage) isLoading.update((current) => !current);
 
-		const uuid = $user.identifiers.userUniqueToken
-		const avatar = $user.features.previewImage
-		const name = $user.personalInfo.name
-
+		const uuid = $user.identifiers.userUniqueToken;
+		const avatar = $user.features.previewImage;
+		const name = $user.personalInfo.name;
 
 		const response = await fetch("api/upload", {
 			method: "POST",
@@ -54,7 +52,7 @@
 
 		if (response.ok) {
 			const data = await response.json();
-			if (!data.secure_url) return notifications.danger(data.error, 2000);
+			// if (!data.secure_url) return notifications.danger(data.error, 2000);
 			updateInlocalStore("personalInfo.pictureUrl", data.secure_url);
 		}
 		isLoading.update((current) => false);
@@ -146,20 +144,20 @@
 					id="phone"
 					on:input={(event) => {
 						formatPhone(event, (newValue) =>
-								user.update((currUser) => {
-										return {
-												...currUser,
-												personalInfo: {
-														...currUser.personalInfo,
-														contact: {
-																...currUser.personalInfo.contact,
-																phone: newValue
-														}
-												}
-										};
-								})
+							user.update((currUser) => {
+								return {
+									...currUser,
+									personalInfo: {
+										...currUser.personalInfo,
+										contact: {
+											...currUser.personalInfo.contact,
+											phone: newValue,
+										},
+									},
+								};
+							})
 						);
-				}}
+					}}
 					value={$user.personalInfo.contact.phone}
 				/>
 			</div>
@@ -175,96 +173,109 @@
 						placeholder="Numéro téléphone"
 						on:input={(event) => {
 							formatPhone(event, (newValue) =>
-									user.update((currUser) => {
-											return {
-													...currUser,
-													personalInfo: {
-															...currUser.personalInfo,
-															contact: {
-																	...currUser.personalInfo.contact,
-																	mobilePhone: newValue
-															}
-													}
-											};
-									})
+								user.update((currUser) => {
+									return {
+										...currUser,
+										personalInfo: {
+											...currUser.personalInfo,
+											contact: {
+												...currUser.personalInfo.contact,
+												mobilePhone: newValue,
+											},
+										},
+									};
+								})
 							);
-					}}
-					value={$user.personalInfo.contact.mobilePhone}
+						}}
+						value={$user.personalInfo.contact.mobilePhone}
 					/>
 				{/if}
 			</div>
-			<div class="separator" />
-			<h2>Plus d'options</h2>
-			<!-- svelte-ignore a11y-label-has-associated-control -->
-			<div class="field">
-				<label for="linkedin">LinkedIn personnel</label>
-				<input type="text" spellcheck="false" autocomplete="off" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.personalInfo.contact.linkedin} />
+			<!-- <div class="separator" /> -->
+			<div class="divider-title">
+				<div class="line-container"><div class="line" /></div>
+				<div class="title">
+					<!-- <h2>Plus d'options</h2> -->
+					<button class="btn -round -secondary" on:click={() => (showMore = !showMore)}>
+						<!-- <svg class="" x-description="Heroicon name: solid/plus-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+							<path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+						</svg> -->
+						{showMore ? "Voir moins" : "Voir plus"}
+					</button>
+				</div>
 			</div>
-			<div class="field">
-				<label for="BookACall">Réserver un appel</label>
-				<input type="text" placeholder="Lien du calendrier en ligne" id="BookACall" bind:value={$user.features.bookACall} />
-			</div>
-			<fieldset class="field fieldset">
-				<div class="field">
-					<label for="uploadBanner">
-						Bannière d'annonce
-						<svg use:tooltip title="Image au format .jpg, .jpeg, .png" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<g clip-path="url(#clip0_1054_159)">
-								<path
-									d="M6.05998 5.99998C6.21672 5.55442 6.52608 5.17872 6.93328 4.9394C7.34048 4.70009 7.81924 4.61261 8.28476 4.69245C8.75028 4.7723 9.17252 5.01433 9.4767 5.37567C9.78087 5.737 9.94735 6.19433 9.94665 6.66665C9.94665 7.99998 7.94665 8.66665 7.94665 8.66665M7.99998 11.3333H8.00665M14.6666 7.99998C14.6666 11.6819 11.6819 14.6666 7.99998 14.6666C4.31808 14.6666 1.33331 11.6819 1.33331 7.99998C1.33331 4.31808 4.31808 1.33331 7.99998 1.33331C11.6819 1.33331 14.6666 4.31808 14.6666 7.99998Z"
-									stroke="#98A2B3"
-									stroke-width="1.33333"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								/>
-							</g>
-							<defs>
-								<clipPath id="clip0_1054_159">
-									<rect width="16" height="16" fill="white" />
-								</clipPath>
-							</defs>
-						</svg>
-					</label>
-					<div class="inline-btn">
-						<button
-							use:tooltip
-							title="Afficher ou cacher l'annonce"
-							class="btn -secondary -square in-input"
-							on:click={() => {
-								$user.features.banner.visible = !$user.features.banner.visible;
-							}}
-						>
-							{#if $user.features.banner.visible}
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-									<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-								</svg>
-							{:else}
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-									/>
-								</svg>
-							{/if}
-						</button>
-						<input type="text" spellcheck="false" autocomplete="off" bind:value={$user.features.banner.image} placeholder="Lien de l'image de votre bannière" />
+			{#if showMore}
+				<div transition:slide={{duration: 600}} class="more">
+					<div class="field">
+						<label for="linkedin">LinkedIn personnel</label>
+						<input type="text" spellcheck="false" autocomplete="off" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.personalInfo.contact.linkedin} />
 					</div>
-				</div>
-				<div class="field">
-					<label for="bannerLink">Lien internet de l'annonce</label>
-					<input type="text" disabled={!$user.features.banner.image} bind:value={$user.features.banner.link} id="bannerLink" placeholder="Lien d'annonce" />
-				</div>
-				<div class="field -inline">
-					<label for="border">Contour</label>
-					<input disabled={!$user.features.banner.image} id="border" bind:checked={$user.features.banner.border} type="checkbox" class="checkbox switch" />
-				</div>
-			</fieldset>
-			<div class="field">
-				<label for="advert">Avertissement de confidentialité</label>
-				<Dropdown opts={langOptions} obj="preferences.advert" />
-			</div>
+					<div class="field">
+						<label for="BookACall">Réserver un appel</label>
+						<input type="text" placeholder="Lien du calendrier en ligne" id="BookACall" bind:value={$user.features.bookACall} />
+					</div>
+					<fieldset class="field fieldset">
+						<div class="field">
+							<label for="uploadBanner">
+								Bannière d'annonce
+								<svg use:tooltip title="Image au format .jpg, .jpeg, .png" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<g clip-path="url(#clip0_1054_159)">
+										<path
+											d="M6.05998 5.99998C6.21672 5.55442 6.52608 5.17872 6.93328 4.9394C7.34048 4.70009 7.81924 4.61261 8.28476 4.69245C8.75028 4.7723 9.17252 5.01433 9.4767 5.37567C9.78087 5.737 9.94735 6.19433 9.94665 6.66665C9.94665 7.99998 7.94665 8.66665 7.94665 8.66665M7.99998 11.3333H8.00665M14.6666 7.99998C14.6666 11.6819 11.6819 14.6666 7.99998 14.6666C4.31808 14.6666 1.33331 11.6819 1.33331 7.99998C1.33331 4.31808 4.31808 1.33331 7.99998 1.33331C11.6819 1.33331 14.6666 4.31808 14.6666 7.99998Z"
+											stroke="#98A2B3"
+											stroke-width="1.33333"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										/>
+									</g>
+									<defs>
+										<clipPath id="clip0_1054_159">
+											<rect width="16" height="16" fill="white" />
+										</clipPath>
+									</defs>
+								</svg>
+							</label>
+							<div class="inline-btn">
+								<button
+									use:tooltip
+									title="Afficher ou cacher l'annonce"
+									class="btn -secondary -square in-input"
+									on:click={() => {
+										$user.features.banner.visible = !$user.features.banner.visible;
+									}}
+								>
+									{#if $user.features.banner.visible}
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+											<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+										</svg>
+									{:else}
+										<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+											/>
+										</svg>
+									{/if}
+								</button>
+								<input type="text" spellcheck="false" autocomplete="off" bind:value={$user.features.banner.image} placeholder="Lien de l'image de votre bannière" />
+							</div>
+						</div>
+						<div class="field">
+							<label for="bannerLink">Lien internet de l'annonce</label>
+							<input type="text" disabled={!$user.features.banner.image} bind:value={$user.features.banner.link} id="bannerLink" placeholder="Lien d'annonce" />
+						</div>
+						<div class="field -inline">
+							<label for="border">Contour</label>
+							<input disabled={!$user.features.banner.image} id="border" bind:checked={$user.features.banner.border} type="checkbox" class="checkbox switch" />
+						</div>
+					</fieldset>
+					<div class="field">
+						<label for="advert">Avertissement de confidentialité</label>
+						<Dropdown opts={langOptions} obj="preferences.advert" />
+					</div></div>
+			{/if}
 			<footer>
 				<div class="buttons-group">
 					<div class="field -inline -rgpd" use:tooltip title="En soumettant ce formulaire, j'accepte que les informations saisies soient exploitées dans le cadre de la démo et dfe la relation commerciale qui peut en découler.">
@@ -281,26 +292,6 @@
 						</button>
 					</div>
 				</div>
-				<!-- <div class="desc">
-							<div class="head">
-								<span class="news">
-									<svg class="b7Lf_ucBvHbZEidPjF8t wikskPDYEBn0nlvDss8h kbeH5ty3CtPKxXm5TXph eVNhx7m5tjSVbfYQzDdT" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-										<path
-											fill-rule="evenodd"
-											d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-											clip-rule="evenodd"
-										/>
-									</svg>
-									New update
-								</span>
-								<button class="btn -square -circle"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-								</svg></button>
-							</div>
-							<p>Veuillez remplir les informations demandées et coller le contenu dans l'espace signature électronique d'Outlook.</p>
-							<p>Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>
-						</div> -->
-
 				<!-- <a href="https://teams.microsoft.com/l/chat/0/0?users=abelkic@solware.fr" class="btn -secondary">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />

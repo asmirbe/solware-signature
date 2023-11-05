@@ -2,10 +2,7 @@ import { json } from "@sveltejs/kit";
 import { removeSpaces } from "../../../lib/util.js";
 import { v2 as cloudinary } from "cloudinary";
 import { CLOUDNAME, APIKEY, APISECRET } from "$env/static/private";
-
-const userCallCounts = {}; // This will store how many times each user has called the function
-const callLimitPerUser = 5; // For example, let's limit to 5 calls per user
-const timeWindow = 3600000;
+import { userCallCounts, callLimitPerUser, timeWindow }
 
 // cloudinary config
 cloudinary.config({

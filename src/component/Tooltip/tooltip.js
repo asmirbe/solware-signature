@@ -1,6 +1,5 @@
 // tooltip.js
 import tippy from 'tippy.js';
-import '../scss/_tooltip.scss';
 
 export function tooltip(node, params = {}) {
 	// Determine the title to show. We want to prefer

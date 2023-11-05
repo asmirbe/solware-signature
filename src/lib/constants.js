@@ -1,3 +1,7 @@
+export const userCallCounts = {}; // This will store how many times each user has called the function
+export const callLimitPerUser = 5; // For example, let's limit to 5 calls per user
+export const timeWindow = 600000; // 360 000 = 1 hour
+
 export const lang = {
 	1: "Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.",
 	2: "This email message and any files attached to it are confidential and intended only for the person or entity to whom they are addressed. If you received this message in error, please notify the sender immediately and delete this message from your system. Any use, disclosure, distribution or reproduction of this message is prohibited.",
@@ -16,6 +20,6 @@ export let langOptions = [
 ];
 
 export let brandOptions = [
-	{ id: 0, name: "Solware", link: "https://solware.fr/" },
-	{ id: 1, name: "Solware Auto", link:"https://winmotornext.com/" }
+	{ id: 0, name: "Solware", link: "https://solware.fr/", badge: "Holding", badgeColor: "red" },
+	{ id: 1, name: "Solware Auto", link:"https://winmotornext.com/", badge: "WinMotor Next", badgeColor: "blue" }
 ];

@@ -1,5 +1,6 @@
 <script>
 	// @ts-nocheck
+	import { fade } from 'svelte/transition'
 	import user, {updateInlocalStore} from "$lib/store.js";
 	let show = false;
 	let container;
@@ -54,7 +55,7 @@
 		</svg>
 	</button>
 	{#if show}
-		<div class="dropdown-menu">
+		<div transition:fade={{duration:100}} class="dropdown-menu">
 			{#each opts as opt}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span
@@ -71,6 +72,14 @@
 						/>
 					</svg>
 					{opt.name}
+					{#if opt.badge}
+					<div class={`badge -${opt.badgeColor}`}>
+						<svg class="dot" fill="currentColor" viewBox="0 0 8 8">
+							<circle cx="4" cy="4" r="3"></circle>
+						</svg>
+						{opt.badge}
+					</div>
+					{/if}
 				</span>
 			{/each}
 		</div>
