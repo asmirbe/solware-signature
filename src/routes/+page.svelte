@@ -2,20 +2,21 @@
 	// Importing scss file and svelte store, component and library
 	import "../scss/main.scss";
 	import { onMount, onDestroy } from "svelte";
-	import user from "$lib/store";
+	import user, { isHelpOpen } from "$lib/store";
 	import { Notification } from "$components/notification";
 	import ClipboardJS from "clipboard";
-	import Image from "$components/image.svelte";
+	import Image from "$components/Image.svelte";
 	import { fade } from "svelte/transition";
 	import { lang, brandOptions } from "$lib/constants";
 	import { formatPhone, loadImage, checkImageUrl, getBase64, objectsAreEqual } from "$lib/util";
 	import { isLoading, signLoading } from "$lib/store";
 	import Sidebar from "$components/Sidebar.svelte";
-
+	import Modal from "$components/Modal.svelte";
+	import circle from "$assets/circle.png";
 	let htmlSignature;
 	let clipboard;
 
-	$: console.log(htmlSignature);
+	// $: console.log(htmlSignature);
 	onMount(() => {
 		const images = document.querySelectorAll("img[data-src]");
 		images.forEach((img) => {
@@ -40,6 +41,10 @@
 	});
 
 	$: selectedLink = brandOptions.find((brand) => brand.id === $user.preferences.brand) || brandOptions[0];
+
+	function closeModal() {
+		isHelpOpen = false;
+	}
 </script>
 
 <svelte:head>
@@ -49,29 +54,46 @@
 {#if !$signLoading}
 	<Sidebar />
 	<div class="container">
+		<svg class="circle" viewBox="0 0 783 955" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<g filter="url(#filter0_f_1209_21)">
+				<circle cx="916.965" cy="37.9644" r="516.813" transform="rotate(-105 916.965 37.9644)" fill="url(#paint0_angular_1209_21)" />
+			</g>
+			<defs>
+				<filter id="filter0_f_1209_21" x="0.0234375" y="-878.977" width="1833.88" height="1833.88" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+					<feFlood flood-opacity="0" result="BackgroundImageFix" />
+					<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+					<feGaussianBlur stdDeviation="200" result="effect1_foregroundBlur_1209_21" />
+				</filter>
+				<radialGradient id="paint0_angular_1209_21" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(916.965 37.9644) rotate(90) scale(516.813)">
+					<stop stop-color="#349DFB" />
+					<stop offset="1" stop-color="#7FF21A" />
+				</radialGradient>
+			</defs>
+		</svg>
+
+		<!-- <div class="desc">
+			<div class="head">
+				<span class="news">
+					<svg class="b7Lf_ucBvHbZEidPjF8t wikskPDYEBn0nlvDss8h kbeH5ty3CtPKxXm5TXph eVNhx7m5tjSVbfYQzDdT" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+						<path
+							fill-rule="evenodd"
+							d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					New update
+				</span>
+				<button class="btn -circle -small">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+			<p>Veuillez remplir les informations demandées et coller le contenu dans l'espace signature électronique d'Outlook.</p>
+			<p>Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>
+		</div> -->
 		<div class="signature">
 			<Notification />
-			<!-- <div class="desc">
-				<div class="head">
-					<span class="news">
-						<svg class="b7Lf_ucBvHbZEidPjF8t wikskPDYEBn0nlvDss8h kbeH5ty3CtPKxXm5TXph eVNhx7m5tjSVbfYQzDdT" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-							<path
-								fill-rule="evenodd"
-								d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-						New update
-					</span>
-					<button class="btn -circle -small">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-						</svg>
-					</button>
-				</div>
-				<p>Veuillez remplir les informations demandées et coller le contenu dans l'espace signature électronique d'Outlook.</p>
-				<p>Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>
-			</div> -->
 			<div class="card">
 				<header class="card-header">Votre signature</header>
 				<div class="card-content">
@@ -145,7 +167,7 @@
 												</a>
 											{/if}
 										</div>
-										<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 8px; border-collapse: initial; {checkImageUrl($user.features.banner.link) || $user.advert ? 'padding-bottom: 8px;' : ''}">
+										<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 12px; border-collapse: initial; {checkImageUrl($user.features.banner.link) || $user.advert ? 'padding-bottom: 8px;' : ''}">
 											<tbody>
 												<tr>
 													<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
@@ -187,5 +209,6 @@
 				</div>
 			</div>
 		</div>
+		<!-- <img class="circle" src={circle} alt=""> -->
 	</div>
 {/if}

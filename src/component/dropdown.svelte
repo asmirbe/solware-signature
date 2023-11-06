@@ -55,7 +55,7 @@
 		</svg>
 	</button>
 	{#if show}
-		<div transition:fade={{duration:100}} class="dropdown-menu">
+		<div transition:fade={{duration:80}} class="dropdown-menu">
 			{#each opts as opt}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span

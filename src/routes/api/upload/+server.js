@@ -1,8 +1,8 @@
 import { json } from "@sveltejs/kit";
-import { removeSpaces } from "../../../lib/util.js";
+import { removeSpaces } from "$lib/util";
 import { v2 as cloudinary } from "cloudinary";
 import { CLOUDNAME, APIKEY, APISECRET } from "$env/static/private";
-import { userCallCounts, callLimitPerUser, timeWindow }
+import { userCallCounts, callLimitPerUser, timeWindow } from "$lib/constants";
 
 // cloudinary config
 cloudinary.config({

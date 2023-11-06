@@ -60,3 +60,15 @@ export function checkImageUrl(url) {
 	const pattern = new RegExp(`^https?://.+\\.(${validFormats.join("|")})$`, "i");
 	return pattern.test(url);
 }
+
+export function deepClone(obj) {
+	if (obj === null) return null;
+	if (typeof obj !== 'object') return obj;
+	if (obj instanceof Array) return obj.map(deepClone);
+	const cloned = {};
+	for (const key in obj) {
+			cloned[key] = deepClone(obj[key]);
+	}
+	return cloned;
+}
+

@@ -1,11 +1,12 @@
 // store.js
-import { debounce, objectsAreEqual } from "./util.js";
+import { debounce, deepClone } from "./util.js";
 import { notifications } from "$components/notification";
 import { browser } from "$app/environment";
 import { writable } from "svelte/store";
 
 export const isLoading = writable(false);
 export const signLoading = writable(true);
+export const isHelpOpen = writable(false);
 
 const defaultValue = {
 	identifiers: {
@@ -43,19 +44,17 @@ const defaultValue = {
 const initialValue = browser ? JSON.parse(localStorage.getItem("user")) ?? defaultValue : defaultValue;
 let user = writable(initialValue);
 
-const debouncedSaveToLocalStorage = debounce((currentValue) => {
-	try {
-		localStorage.setItem("user", JSON.stringify(currentValue));
-	} catch (error) {
-		console.error("Failed to set item in localStorage:", error);
-	}
-}, 300);
-
 if (browser) {
-	user.subscribe(debouncedSaveToLocalStorage);
+	user.subscribe((currentValue) => {
+		try {
+			localStorage.setItem("user", JSON.stringify(currentValue));
+		} catch (error) {
+			console.error("Failed to set item in localStorage:", error);
+		}
+	});
+
 	signLoading.set(false);
 }
-
 export const updateInlocalStore = (name, value) => {
 	try {
 		user.update((n) => {
@@ -78,19 +77,18 @@ export const updateInlocalStore = (name, value) => {
 				return { ...n, [name]: value };
 			}
 		});
-		console.log("Updated", name, value);
 	} catch (error) {
 		console.error("Failed to update data in localStorage:", error);
 	}
 };
 
+
 export const resetToDefault = () => {
 	try {
-		// user.set(defaultValue);
-		user.set(Object.assign({}, defaultValue));
-		notifications.info("Réinitialisation complète", 1000);
+			user.set(deepClone(defaultValue));
+			notifications.info("Réinitialisation complète", 1000);
 	} catch (error) {
-		console.error("Failed to update data in localStorage:", error);
+			console.error("Failed to update data in localStorage:", error);
 	}
 };
 
