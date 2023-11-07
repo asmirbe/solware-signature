@@ -7,8 +7,8 @@
 	import ClipboardJS from "clipboard";
 	import Image from "$components/Image.svelte";
 	import { fade } from "svelte/transition";
-	import { lang, brandOptions } from "$lib/constants";
-	import { formatPhone, loadImage, checkImageUrl, getBase64, objectsAreEqual } from "$lib/util";
+	import { lang, brandOptions, txtApp } from "$lib/constants";
+	import { formatPhone, loadImage, checkImageUrl, getBase64, objectsAreEqual, fadeTranslateScale } from "$lib/util";
 	import { isLoading, signLoading } from "$lib/store";
 	import Sidebar from "$components/Sidebar.svelte";
 	import Modal from "$components/Modal.svelte";
@@ -71,27 +71,25 @@
 			</defs>
 		</svg>
 
-		<!-- <div class="desc">
-			<div class="head">
-				<span class="news">
-					<svg class="b7Lf_ucBvHbZEidPjF8t wikskPDYEBn0nlvDss8h kbeH5ty3CtPKxXm5TXph eVNhx7m5tjSVbfYQzDdT" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-						<path
-							fill-rule="evenodd"
-							d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					New update
-				</span>
-				<button class="btn -circle -small">
-					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-					</svg>
-				</button>
+		{#if $isHelpOpen}
+			<div class="desc" transition:fadeTranslateScale={{ from: "left-top", duration: 180 }}>
+				<header class="head">
+					<h5>{txtApp.infosTitle}</h5>
+					<button class="btn -secondary -round -small" style="padding: 0.2rem;" on:click={() => ($isHelpOpen = false)}>
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+							<path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd" />
+						</svg>
+					</button>
+				</header>
+				{@html txtApp.infosText}
+				<footer class="foot">
+					<div class="field">
+						<label for="token">Votre token utilisateur</label>
+						<input type="text" id="token" readonly value={$user.identifiers.userUniqueToken} />
+					</div>
+				</footer>
 			</div>
-			<p>Veuillez remplir les informations demandées et coller le contenu dans l'espace signature électronique d'Outlook.</p>
-			<p>Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>
-		</div> -->
+		{/if}
 		<div class="signature">
 			<Notification />
 			<div class="card">

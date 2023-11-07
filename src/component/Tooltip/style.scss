@@ -8,9 +8,10 @@
 	position: relative;
 	background-color: #000;
 	color: #fff;
-	border-radius: 8px;
-	font-size: 14px;
-	line-height: 1.4;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	transition-duration: 0.15s;
 	white-space: normal;
 	outline: 0;
 	transition-property: transform, visibility, opacity;
@@ -19,10 +20,10 @@
 	> .tippy-arrow {
 		bottom: 0;
 		&:before {
-			bottom: -7px;
+			bottom: -5px;
 			left: 0;
-			border-width: 8px 8px 0;
-			border-top-color: initial;
+			border-width: 6px 6px 0;
+			border-top-color: #000;
 			transform-origin: center top;
 		}
 	}
@@ -31,10 +32,10 @@
 	> .tippy-arrow {
 		top: 0;
 		&:before {
-			top: -7px;
+			top: -5px;
 			left: 0;
-			border-width: 0 8px 8px;
-			border-bottom-color: initial;
+			border-width: 0 6px 6px;
+			border-bottom-color: #000;
 			transform-origin: center bottom;
 		}
 	}
@@ -43,9 +44,9 @@
 	> .tippy-arrow {
 		right: 0;
 		&:before {
-			border-width: 8px 0 8px 8px;
-			border-left-color: initial;
-			right: -7px;
+			border-width: 6px 0 6px 6px;
+			border-left-color: #000;
+			right: -5px;
 			transform-origin: center left;
 		}
 	}
@@ -54,9 +55,9 @@
 	> .tippy-arrow {
 		left: 0;
 		&:before {
-			left: -7px;
-			border-width: 8px 8px 8px 0;
-			border-right-color: initial;
+			left: -5px;
+			border-width: 6px 6px 6px 0;
+			border-right-color: #000;
 			transform-origin: center right;
 		}
 	}
@@ -77,6 +78,8 @@
 }
 .tippy-content {
 	position: relative;
-	padding: 8px 12px;
+	box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+	padding: 0.75rem;
+	overflow-wrap: break-word;
 	z-index: 1;
 }

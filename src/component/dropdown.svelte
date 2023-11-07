@@ -1,6 +1,7 @@
 <script>
 	// @ts-nocheck
 	import { fade } from 'svelte/transition'
+	import {fadeTranslateScale} from "$lib/util";
 	import user, {updateInlocalStore} from "$lib/store.js";
 	let show = false;
 	let container;
@@ -55,7 +56,7 @@
 		</svg>
 	</button>
 	{#if show}
-		<div transition:fade={{duration:80}} class="dropdown-menu">
+		<div transition:fadeTranslateScale={{ duration: 100, from: 'top' }} class="dropdown-menu">
 			{#each opts as opt}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span

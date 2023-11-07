@@ -1,7 +1,8 @@
 <script>
 	// @ts-nocheck
 
-	import { fly } from "svelte/transition";
+	import {fly} from "svelte/transition"
+	import { fadeTranslateScale } from "$lib/util";
 	import { Notification, notifications } from "./index";
 	import { notificationIcon } from "$lib/constants";
 	export let themes = {
@@ -16,7 +17,8 @@
 {#if $notifications.length}
 	<div class="notifications">
 		{#each $notifications as notification (notification.id)}
-			<div class="toast {themes[notification.type]}" transition:fly={{ y: 0 }}>
+			<div class="toast {themes[notification.type]}" transition:fadeTranslateScale={{ from: 'bottom' }}>
+			<!-- <div class="toast {themes[notification.type]}" transition:fly={{ y: 50, duration: 500 }}> -->
 				<div class="content">
 					<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">{@html notificationIcon[notification.type]}</svg>
 					{notification.message}
@@ -33,15 +35,16 @@
 		left: 20px;
 		margin: 0 auto;
 		padding: 0;
-		gap: 0.75rem;
 		z-index: 9999999;
 		display: flex;
 		flex-direction: column;
+		align-items: flex-start;
 	}
 
 	.toast {
 		flex: 0 0 auto;
 		border-radius: 0.375rem;
+		margin-bottom: .75rem;
 		box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 		&.info {
 			color: rgb(29, 78, 216);

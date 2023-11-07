@@ -1,9 +1,12 @@
+import { fade, slide, fly } from "svelte/transition";
+import { cubicOut } from 'svelte/easing';
+
 export function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
+	let timeout;
+	return function (...args) {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => func.apply(this, args), wait);
+	};
 }
 
 export const formatPhone = (e, userOptionSetter) => {
@@ -19,7 +22,7 @@ export const formatPhone = (e, userOptionSetter) => {
 	userOptionSetter(formatted);
 };
 
-export const removeSpaces = (str) => str.replace(/\s/g, '');
+export const removeSpaces = (str) => str.replace(/\s/g, "");
 
 // get base64 from image
 export function getBase64(image) {
@@ -32,16 +35,16 @@ export function getBase64(image) {
 }
 
 export function objectsAreEqual(objA, objB) {
-  const keysA = Object.keys(objA);
-  const keysB = Object.keys(objB);
+	const keysA = Object.keys(objA);
+	const keysB = Object.keys(objB);
 
-  if (keysA.length !== keysB.length) return false;
+	if (keysA.length !== keysB.length) return false;
 
-  for (let key of keysA) {
-    if (objA[key] !== objB[key]) return false;
-  }
+	for (let key of keysA) {
+		if (objA[key] !== objB[key]) return false;
+	}
 
-  return true;
+	return true;
 }
 
 export function loadImage(img, onLoad, onError) {
@@ -63,12 +66,66 @@ export function checkImageUrl(url) {
 
 export function deepClone(obj) {
 	if (obj === null) return null;
-	if (typeof obj !== 'object') return obj;
+	if (typeof obj !== "object") return obj;
 	if (obj instanceof Array) return obj.map(deepClone);
 	const cloned = {};
 	for (const key in obj) {
-			cloned[key] = deepClone(obj[key]);
+		cloned[key] = deepClone(obj[key]);
 	}
 	return cloned;
 }
 
+export function fadeSlide(node, options) {
+	const slideTrans = slide(node, options);
+	return {
+		duration: options.duration,
+		css: (t) => `
+			${slideTrans.css(t)}
+			opacity: ${t};
+		`,
+	};
+}
+
+export function fadeTranslateScale(node, options) {
+	// Set default 'from' direction to 'top' if not provided
+	const fromDirection = options.from || 'top';
+
+	// Initialize start values for X and Y translation
+	let translateXStartValue = 0;
+	let translateYStartValue = 0;
+
+	// Determine the translation start values based on fromDirection
+	switch (fromDirection) {
+			case 'left-top':
+					translateXStartValue = -30;
+					translateYStartValue = -30;
+					break;
+			case 'right-top':
+					translateXStartValue = 30;
+					translateYStartValue = -30;
+					break;
+			case 'bottom-top': // This direction seems a bit unclear, assuming it means from bottom to top
+					translateYStartValue = 30;
+					break;
+			case 'bottom-right':
+					translateXStartValue = 30;
+					translateYStartValue = 30;
+					break;
+			case 'top':
+					translateYStartValue = -10;
+					break;
+			case 'bottom':
+					translateYStartValue = 10;
+					break;
+			default:
+					throw new Error('Invalid fromDirection value');
+	}
+
+	return {
+			duration: options.duration,
+			css: t => `
+					opacity: ${t};
+					transform: translate(${(1 - t) * translateXStartValue}px, ${(1 - t) * translateYStartValue}px) scale(${0.9 + 0.1 * t});
+			`,
+	};
+}

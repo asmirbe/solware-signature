@@ -109,8 +109,7 @@ h1 {
 	display: flex;
 	height: 100%;
 	@include small-screen {
-		display: block;
-		height: auto;
+		flex-direction: column;
 	}
 }
 .divider-title {
@@ -152,39 +151,65 @@ nav {
 	z-index: 2;
 }
 .desc {
+	position: absolute;
+	left: 0;
+	top: 0;
+	margin: 1.25rem 1.5rem 2rem;
+	z-index: 3;
+	border-radius: 0.5rem;
+	border-width: 1px;
+	border-color: #e5e7eb;
+	width: 100%;
+	max-width: 24rem;
+	background-color: #ffffff;
+	padding: 1.25rem;
+	overflow: hidden;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
 	.head {
 		display: flex;
 		flex-grow: 1;
 		justify-content: space-between;
 		align-items: center;
+		margin-bottom: 0.75rem;
+		h5 {
+			margin: 0;
+			font-size: 1.25rem;
+			line-height: 1.75rem;
+			font-weight: 600;
+		}
+	}
+	.foot {
+		margin-top: 0.75rem;
 	}
 	p {
 		color: rgb(107, 114, 128);
 		margin: 0;
+		& + p {
+			margin-top: 0.5rem;
+		}
+	}
+	a {
+		text-decoration: none;
+		color: $dark;
 	}
 	span {
 		font-size: 0.875rem;
 		line-height: 1.25rem;
 		color: rgb(107, 114, 128);
 	}
-	.news {
-		gap: 0.25rem;
-		border-radius: 4px;
-		display: inline-flex;
-		align-items: center;
-		padding-left: 0.625rem;
-		margin-right: 0.5rem;
-		padding-right: 0.625rem;
-		padding-bottom: 0.125rem;
-		padding-top: 0.125rem;
-		background: rgb(222, 247, 236);
-		border-radius: 0.25rem;
-		font-weight: 500;
-		color: rgb(3, 84, 63);
-		svg {
-			width: 1rem;
-			height: 1rem;
-		}
+	&:before {
+		content: "";
+		z-index: -1;
+		position: absolute;
+		filter: blur(3rem);
+		right: -50px;
+		width: 15rem;
+		height: 3rem;
+		background: linear-gradient(to right bottom, #349dfb, #7ff21a);
+		top: -40px;
 	}
 }
 .sidebar {
@@ -441,8 +466,9 @@ label {
 		width: 1rem;
 		background: rgb(243, 244, 246);
 		outline-offset: 2px;
+		transition: background 0.2s ease;
 		&:focus {
-			outline: 2px solid $outline-color;
+			outline: 2px solid $dark;
 		}
 		&:checked {
 			background: $dark;
@@ -489,9 +515,11 @@ label {
 		font-size: 14px;
 		outline: none;
 		outline-offset: 2px;
-		&:focus {
-			outline: 2px solid $outline-color;
-			background-color: #fff;
+		&:not([readonly]):not([disabled]) {
+			&:focus {
+				outline: 2px solid $outline-color;
+				background-color: #fff;
+			}
 		}
 		&::placeholder {
 			color: #667085;
@@ -500,6 +528,10 @@ label {
 			background: #fafafa;
 			cursor: not-allowed;
 		}
+		&[readonly] {
+			border-color: rgb(228, 228, 228);
+			background-color: rgb(249, 250, 251);
+		}
 	}
 	& + .field {
 		margin-top: 1.25rem;
@@ -507,7 +539,7 @@ label {
 }
 .container {
 	position: relative;
-	background-color: #f5f5f5;
+	background-color: #f6f6f6;
 	height: 100%;
 	display: grid;
 	width: 100%;
@@ -521,6 +553,7 @@ label {
 	.signature {
 		display: flex;
 		z-index: 1;
+		padding: 2rem;
 		height: 100%;
 		position: relative;
 		width: 100%;
@@ -528,8 +561,7 @@ label {
 		justify-content: center;
 
 		.card {
-			min-width: 650px;
-			min-height: 245px;
+			min-width: 40rem;
 			background-color: rgb(255, 255, 255);
 			border-radius: 12px;
 			box-shadow:
@@ -673,6 +705,7 @@ h3 {
 		box-shadow: 0 0 0 2px white;
 		background: rgb(224, 36, 36);
 		position: absolute;
+		outline-color: $dark;
 		transition: background 0.2s ease;
 		svg {
 			width: 0.5rem;
@@ -751,7 +784,6 @@ h3 {
 		aspect-ratio: 1 / 1;
 		border-radius: 999px;
 	}
-
 	&.-remove {
 		width: auto;
 		&:hover {
@@ -782,7 +814,6 @@ h3 {
 		line-height: 1rem;
 		font-weight: 500;
 	}
-
 	&[disabled] {
 		cursor: not-allowed;
 		opacity: 0.5;
@@ -813,11 +844,11 @@ h3 {
 		margin: 0;
 		position: relative;
 		transition:
-			background 0.1s ease,
-			transform 0.1s ease;
+			background 0.2s ease,
+			transform 0.2s ease;
 		cursor: pointer;
 		&:focus {
-			outline-color: $outline-color;
+			outline-color: $dark;
 		}
 		&:before {
 			content: "";
