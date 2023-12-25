@@ -3,10 +3,11 @@
 	import user, { updateInlocalStore, resetToDefault, isLoading, signLoading, isHelpOpen } from "$lib/store";
 	import { notifications } from "$components/notification";
 	import Dropdown from "$components/Dropdown.svelte";
-	import Image from "$components/image.svelte";
+	import Image from "$components/Image.svelte";
+	import { InputBase, InputLink } from "$components/Inputs";
 	import { tooltip } from "$components/tooltip";
-	import { langOptions, brandOptions, txtApp } from "$lib/constants";
-	import { formatPhone, loadImage, checkImageUrl, getBase64, fadeSlide } from "$lib/util";
+	import { langOptions, brandOptions, txtApp, addressOptions, notificationIcon } from "$lib/constants";
+	import { formatPhone, loadImage, checkImageUrl, getBase64, fadeSlide, handleInput } from "$lib/util";
 	import { fade } from "svelte/transition";
 	import { Svrollbar } from "svrollbar";
 	let files,
@@ -30,7 +31,7 @@
 		event.preventDefault();
 		if (!$user.preferences.acceptRgpd) return notifications.info("Condition d'utilisations non acceptées", 5000);
 		if (!$user.identifiers.userUniqueToken && !$user.identifiers.userUniqueToken?.length > 0) return notifications.warning("Une erreur est survenu, merci de vider votre cache ou réessayer avec un autre navigateur.", 2000);
-		if (!$user.features.previewImage) return notifications.warning("Un avatar est requis", 2000);
+		if (!$user.features.previewImage) return notifications.warning("Un avatar est requis", 3000, notificationIcon.warning);
 		isLoading.update((current) => !current);
 
 		const uuid = $user.identifiers.userUniqueToken;
@@ -54,12 +55,25 @@
 	}
 
 	function removeFile() {
-		updateInlocalStore("features.previewImage", null);
-		fileInput.value = "";
+		try {
+			updateInlocalStore("features.previewImage", null);
+			fileInput.value = "";
+		} catch (error) {
+			notifications.danger(error, 5000, notificationIcon.warning);
+		}
 	}
 
 	function showHelp() {
-		$isHelpOpen = !$isHelpOpen
+		$isHelpOpen = !$isHelpOpen;
+	}
+
+	async function handleReset() {
+		try {
+			await resetToDefault();
+			notifications.info("Réinitialisation complète", 1000, notificationIcon.reset);
+		} catch (error) {
+			notifications.danger(error, 5000, notificationIcon.warning);
+		}
 	}
 </script>
 
@@ -84,19 +98,11 @@
 							fill="#34D399"
 						/>
 					</svg>
-					<b>Infos & Màj</b>
-					<!-- <svg width="2" height="2" aria-hidden="true" class="fill-slate-900"><circle cx="1" cy="1" r="1" /></svg> -->
+					<b>Infos</b>
+					<!-- <svg width="2" height="2" aria-hidden="true" class="fill-slate-900"><circle cx="1" cy="1" r="1" /></svg
+					<span>Mise à jour</span> -->
 				</button>
 			</header>
-			<!-- <h3>Générateur de signature</h3> -->
-			<div class="field">
-				<label for="brand">Choix de la marque</label>
-				<Dropdown opts={brandOptions} obj="preferences.brand" />
-			</div>
-			<div class="field">
-				<label for="name">Prénom et Nom</label>
-				<input type="text" spellcheck="false" name="fullname" autocomplete="off" id="name" placeholder="Prénom et nom" bind:value={$user.personalInfo.name} />
-			</div>
 			<div class="field">
 				<label for="avatar">Avatar</label>
 				<div class="input-file {$user.personalInfo.pictureUrl ? 'active' : ''}">
@@ -127,16 +133,20 @@
 				</div>
 			</div>
 			<div class="field">
-				<label for="position">Poste occupé</label>
-				<input type="text" spellcheck="false" autocomplete="off" id="position" placeholder="Poste occupé" bind:value={$user.personalInfo.position} />
+				<InputBase type="text" label="Prénom et nom" placeholder="Prénom et nom" id="name" inputHandler={(newValue) => handleInput(newValue, "personalInfo.name")} value={$user.personalInfo.name} />
 			</div>
 			<div class="field">
-				<label for="email">Email</label>
-				<input type="email" id="email" placeholder="Votre email" bind:value={$user.personalInfo.contact.email} />
+				<InputBase type="text" label="Poste occupé" spellcheck="false" placeholder="Poste" id="poste" inputHandler={(newValue) => handleInput(newValue, "personalInfo.position")} value={$user.personalInfo.position} />
+			</div>
+			<div class="field">
+				<Dropdown opts={brandOptions} obj="preferences.brand" label="Entité" id="entity" />
+			</div>
+			<div class="field">
+				<Dropdown opts={addressOptions} obj="preferences.address" label="Adresse du siège" id="address"/>
 			</div>
 			<div class="field">
 				<label for="phone">Téléphone entreprise</label>
-				<input
+				<!-- <input
 					type="tel"
 					size="10"
 					placeholder="Numéro téléphone"
@@ -158,7 +168,8 @@
 						);
 					}}
 					value={$user.personalInfo.contact.phone}
-				/>
+				/> -->
+				<InputBase type="tel" placeholder="Numéro téléphone" id="phone" inputHandler={(newValue) => handleInput(newValue, "personalInfo.contact.phone")} value={$user.personalInfo.contact.phone} formatFunction={formatPhone} />
 			</div>
 			<div class="field">
 				<div class="field -inline">
@@ -166,29 +177,12 @@
 					<input id="phoneMobileCheck" bind:checked={$user.preferences.mobilePhoneCheckbox} type="checkbox" class="checkbox switch" />
 				</div>
 				{#if $user.preferences.mobilePhoneCheckbox}
-					<input
-						type="tel"
-						size="10"
-						placeholder="Numéro téléphone"
-						on:input={(event) => {
-							formatPhone(event, (newValue) =>
-								user.update((currUser) => {
-									return {
-										...currUser,
-										personalInfo: {
-											...currUser.personalInfo,
-											contact: {
-												...currUser.personalInfo.contact,
-												mobilePhone: newValue,
-											},
-										},
-									};
-								})
-							);
-						}}
-						value={$user.personalInfo.contact.mobilePhone}
-					/>
+					<InputBase type="tel" placeholder="Numéro téléphone" id="phone" inputHandler={(newValue) => handleInput(newValue, "personalInfo.contact.mobilePhone")} value={$user.personalInfo.contact.mobilePhone} formatFunction={formatPhone} />
 				{/if}
+			</div>
+			<div class="field">
+				<label for="email">Email</label>
+				<input type="email" id="email" placeholder="Votre email" bind:value={$user.personalInfo.contact.email} />
 			</div>
 			<!-- <div class="separator" /> -->
 			<div class="divider-title">
@@ -202,12 +196,12 @@
 			{#if showMore}
 				<div transition:fadeSlide={{ duration: 180 }} class="more">
 					<div class="field">
-						<label for="linkedin">LinkedIn personnel</label>
-						<input type="text" spellcheck="false" autocomplete="off" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.personalInfo.contact.linkedin} />
+						<InputLink label="LinkedIn personnel" placeholder="www.linkedin.com/in/" id="linkedin" inputHandler={(newValue) => handleInput(newValue, "personalInfo.contact.linkedin")} value={$user.personalInfo.contact.linkedin} />
+						<!-- <input type="text" spellcheck="false" autocomplete="off" id="linkedin" placeholder="Lien de votre LinkedIn" bind:value={$user.personalInfo.contact.linkedin} /> -->
 					</div>
 					<div class="field">
-						<label for="BookACall">Réserver un appel</label>
-						<input type="text" placeholder="Lien du calendrier en ligne" id="BookACall" bind:value={$user.features.bookACall} />
+						<InputLink label="Réserver un appel" placeholder="www.calendar.google.com/calendar" id="BookACall" inputHandler={(newValue) => handleInput(newValue, "features.bookACall")} value={$user.features.bookACall} />
+						<!-- <input type="text" placeholder="Lien du calendrier enw ligne" id="BookACall" bind:value={$user.features.bookACall} /> -->
 					</div>
 					<!-- <fieldset class="field fieldset">
 						<div class="field">
@@ -267,8 +261,7 @@
 						</div>
 					</fieldset> -->
 					<div class="field">
-						<label for="advert">Avertissement de confidentialité</label>
-						<Dropdown opts={langOptions} obj="preferences.advert" />
+						<Dropdown opts={langOptions} obj="preferences.advert" id="advert" label="Avertissement de confidentialité"/>
 					</div>
 				</div>
 			{/if}
@@ -280,7 +273,7 @@
 					</div>
 					<button class="btn -primary" disabled={!$user.preferences.acceptRgpd} on:click={handleSubmit}>Créer la signature</button>
 					<div class="inline-btn">
-						<button on:click={resetToDefault} class="copyToClipboard btn -secondary" type="button">
+						<button on:click={handleReset} class="copyToClipboard btn -secondary" type="button">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
 								<path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
 							</svg>

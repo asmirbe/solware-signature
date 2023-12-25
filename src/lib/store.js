@@ -16,6 +16,7 @@ const defaultValue = {
 			acceptRgpd: false,
 			mobilePhoneCheckbox: false,
 			brand: 0,
+			address: 0,
 			advert: 0
 	},
 	personalInfo: {
@@ -30,7 +31,7 @@ const defaultValue = {
 			pictureUrl: "",
 	},
 	features: {
-			bookACall: '',
+		bookACall: '',
 			banner: {
 					visible: false,
 					link: "",
@@ -86,7 +87,6 @@ export const updateInlocalStore = (name, value) => {
 export const resetToDefault = () => {
 	try {
 			user.set(deepClone(defaultValue));
-			notifications.info("Réinitialisation complète", 1000);
 	} catch (error) {
 			console.error("Failed to update data in localStorage:", error);
 	}

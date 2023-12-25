@@ -27,6 +27,10 @@ export async function POST({ request }) {
 	const data = await request.json();
 	const fullname = removeSpaces(data.fullname);
 	const token = removeSpaces(data.token);
+	if (!data || fullname || token) {
+		return new Response(JSON.stringify({ error: "Missing." }));
+	}
+
 
 	// Rate limiting logic
 	if (!userCallCounts[token]) {

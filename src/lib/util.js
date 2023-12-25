@@ -1,5 +1,6 @@
 import { fade, slide, fly } from "svelte/transition";
-import { cubicOut } from 'svelte/easing';
+import { cubicOut } from "svelte/easing";
+import user from "./store.js";
 
 export function debounce(func, wait) {
 	let timeout;
@@ -10,17 +11,17 @@ export function debounce(func, wait) {
 }
 
 export const formatPhone = (e, userOptionSetter) => {
-	let value = e.target.value;
-	// Remove all non-numeric characters
-	const numbersOnly = value.replace(/\D/g, "");
+  let value = e.target.value;
+  // Remove all non-numeric characters
+  const numbersOnly = value.replace(/\D/g, "");
 
-	// Split the number string into groups of 2 and join them with spaces
-	const formatted = numbersOnly.match(/.{1,2}/g)?.join(" ") || "";
+  // Split the number string into groups of 2 and join them with spaces
+  const formatted = numbersOnly.match(/.{1,2}/g)?.join(" ") || "";
 
-	// Update the input value
-	e.target.value = formatted;
-	userOptionSetter(formatted);
+  // Call the userOptionSetter function with the formatted number
+  userOptionSetter(formatted);
 };
+
 
 export const removeSpaces = (str) => str.replace(/\s/g, "");
 
@@ -88,7 +89,7 @@ export function fadeSlide(node, options) {
 
 export function fadeTranslateScale(node, options) {
 	// Set default 'from' direction to 'top' if not provided
-	const fromDirection = options.from || 'top';
+	const fromDirection = options.from || "top";
 
 	// Initialize start values for X and Y translation
 	let translateXStartValue = 0;
@@ -96,36 +97,60 @@ export function fadeTranslateScale(node, options) {
 
 	// Determine the translation start values based on fromDirection
 	switch (fromDirection) {
-			case 'left-top':
-					translateXStartValue = -30;
-					translateYStartValue = -30;
-					break;
-			case 'right-top':
-					translateXStartValue = 30;
-					translateYStartValue = -30;
-					break;
-			case 'bottom-top': // This direction seems a bit unclear, assuming it means from bottom to top
-					translateYStartValue = 30;
-					break;
-			case 'bottom-right':
-					translateXStartValue = 30;
-					translateYStartValue = 30;
-					break;
-			case 'top':
-					translateYStartValue = -10;
-					break;
-			case 'bottom':
-					translateYStartValue = 10;
-					break;
-			default:
-					throw new Error('Invalid fromDirection value');
+		case "left-top":
+			translateXStartValue = -30;
+			translateYStartValue = -30;
+			break;
+		case "right-top":
+			translateXStartValue = 30;
+			translateYStartValue = -30;
+			break;
+		case "bottom-top": // This direction seems a bit unclear, assuming it means from bottom to top
+			translateYStartValue = 30;
+			break;
+		case "bottom-right":
+			translateXStartValue = 30;
+			translateYStartValue = 30;
+			break;
+		case "bottom-left":
+			translateXStartValue = -30;
+			translateYStartValue = 30;
+			break;
+		case "top":
+			translateYStartValue = -10;
+			break;
+		case "bottom":
+			translateYStartValue = 10;
+			break;
+		default:
+			throw new Error("Invalid fromDirection value");
 	}
 
 	return {
-			duration: options.duration,
-			css: t => `
+		duration: options.duration,
+		css: (t) => `
 					opacity: ${t};
 					transform: translate(${(1 - t) * translateXStartValue}px, ${(1 - t) * translateYStartValue}px) scale(${0.9 + 0.1 * t});
 			`,
 	};
+}
+
+export function handleInput(newValue, propertyPath) {
+	user.update((currUser) => {
+		// Create a new user object from current user data
+		let newUser = { ...currUser };
+
+		// Helper function to set a value at a path inside an object
+		function setValue(obj, path, value) {
+			let keys = path.split(".");
+			let lastKey = keys.pop();
+			let lastObj = keys.reduce((obj, key) => (obj[key] = obj[key] || {}), obj);
+			lastObj[lastKey] = value;
+		}
+
+		// Set the new value at the specified path
+		setValue(newUser, propertyPath, newValue);
+
+		return newUser;
+	});
 }

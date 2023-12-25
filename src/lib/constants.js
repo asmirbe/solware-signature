@@ -12,12 +12,12 @@ export const timeWindow = 600000; // 360 000 = 1 hour | 600000 = 10min
 
 export const txtApp = {
 	checkboxRgpd: "J'accepte les conditions général d'utilisation.",
-	infosTitle: "👀 Infos",
+	infosTitle: "Infos",
 	infosRgpd: "En acceptant ce formulaire, j'accepte que les informations saisies soient exploitées dans le cadre de la démo et de la relation commerciale qui peut en découler.",
 	infosText: `
 	<p>Je m'engage à protéger votre vie privée : mon application de signatures email ne conserve que votre avatar, dans le respect strict de la sécurité et de la confidentialité. Si vous souhaitez le faire supprimer, contactez-moi en transférant votre token utilisateur, tout simplement.</p>
 	<p>Aucune autre donnée personnelle n'est collectée ou stockée. La confiance que vous m'accordez est primordiale, et je suis déterminé à assurer la sécurité de vos informations.</p>
-	<p>Ce site a été créé par <a href="https://www.hiasmir.com" target="_blank"><b>Asmir Belkic</b></a> pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>`,
+	<p>Cette application a été conçue par <a href="https://www.hiasmir.com" target="_blank"><b>Asmir Belkic</b></a> au nom de Solware. Pour toute question ou demande, je vous invite à me joindre via Teams.</p>`,
 };
 
 export const lang = {
@@ -28,8 +28,16 @@ export const lang = {
 	5: "Questo messaggio e-mail e tutti i file ad esso allegati sono riservati e destinati esclusivamente alla persona o entità a cui sono indirizzati. Se hai ricevuto questo messaggio per errore, avvisa immediatamente il mittente ed elimina questo messaggio dal tuo sistema. Qualsiasi utilizzo, divulgazione, distribuzione o riproduzione di questo messaggio è proibito.",
 };
 
+export let addressOptions = [
+	{ id: 0, name: "France", value: `68 bis Chem. du Moulin Carron <br/> 69570 Dardilly` },
+	{ id: 1, name: "Maroc", value: "108, bd Ghandi, résid. Ghandi imm.I n°20 - 20100 Casablanca" },
+	{ id: 2, name: "Algerie", value: "Cité 1200 logements, Coopérative Granitex BT 2 n° 07, Bab Ezzouar 16025, Algérie" },
+	{ id: 3, name: "Italie", value: "Via Leone XIII n°14 - 20145 Milano (MI)" },
+	{ id: 4, name: "Espagne", value: "Calle María Teresa, 17 - 3ªA Madrid 28028 - España" },
+];
+
 export let langOptions = [
-	{ id: 0, name: "Aucun" },
+	{ id: 0, name: "Aucun", default:true },
 	{ id: 1, name: "Français" },
 	{ id: 2, name: "Anglais" },
 	{ id: 3, name: "Portugais" },
@@ -43,8 +51,13 @@ export let brandOptions = [
 ];
 
 export const notificationIcon = {
-	warning: `<path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>`,
-	info: `<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"></path>`,
-	danger: `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"></path>`,
-	success: `<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"></path>`,
+	warning: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0"><path d="M12 8.5V14m0 3.247v-.5m-6.02-5.986C8.608 5.587 9.92 3 12 3c2.08 0 3.393 2.587 6.02 7.761l.327.645c2.182 4.3 3.274 6.45 2.287 8.022C19.648 21 17.208 21 12.327 21h-.654c-4.88 0-7.321 0-8.307-1.572-.987-1.572.105-3.722 2.287-8.022l.328-.645Z"></path></svg>`,
+	info: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0"><path d="M12 16v-5h-.5m0 5h1M12 8.5V8"></path><circle cx="12" cy="12" r="9"></circle></svg>`,
+	danger: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+</svg>
+`,
+	bin: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600"><path d="M6.286 8.571 7.429 20h9.142l1.143-11.429M13.5 15.5v-5m-3 5v-5M4.571 6.286h4.572m0 0 .382-1.529a1 1 0 0 1 .97-.757h3.01a1 1 0 0 1 .97.757l.382 1.529m-5.714 0h5.714m0 0h4.572"></path></svg>`,
+	success: `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600"><path d="m8.667 12.333 1.505 1.721a1 1 0 0 0 1.564-.073L15.333 9"></path><circle cx="12" cy="12" r="9"></circle></svg>`,
+	reset: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>`,
 };

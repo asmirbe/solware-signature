@@ -1,23 +1,27 @@
 <script>
 	// @ts-nocheck
-	import { fade } from 'svelte/transition'
-	import {fadeTranslateScale} from "$lib/util";
-	import user, {updateInlocalStore} from "$lib/store.js";
+	import { fade } from "svelte/transition";
+	import { fadeTranslateScale } from "$lib/util";
+	import user, { updateInlocalStore } from "$lib/store.js";
+	import { Svrollbar } from "svrollbar";
+
 	let show = false;
 	let container;
+	let contents;
 	let selected;
 	export let opts = null;
-	export let obj;
+	export let obj = null;
+	export let id = "";
+	export let label = "";
+	let btn;
 
 	function getNestedValue(object, keyString) {
-			const keys = keyString.split(".");
-			return keys.reduce((o, k) => (o || {})[k], object);
+		const keys = keyString.split(".");
+		return keys.reduce((o, k) => (o || {})[k], object);
 	}
 
-
 	// Update the selected value whenever $user or opts changes
-	$: selected = opts.find(opt => opt.id === getNestedValue($user, obj))?.name || opts[0]?.name || "Select...";
-
+	$: if (obj && opts) selected = opts.find((opt) => opt.id === getNestedValue($user, obj))?.name || opts[0]?.name || "Select...";
 
 	function onWindowClick(e) {
 		if (container.contains(e.target) == false) show = false;
@@ -36,15 +40,40 @@
 	}
 
 	function handleClick(params) {
-    show = false;
-    updateInlocalStore(obj, params.id);
-}
+		show = false;
+		updateInlocalStore(obj, params.id);
+	}
+
+	const sortAlph = (array) => {
+    // Find the default item, if any
+    const defaultItem = array.find(item => item.default === true);
+
+    // Filter out the default item
+    let remainingItems = defaultItem ? array.filter(item => item.default !== true) : array;
+
+    // Separate items that should not be sorted
+    const nonSortableItems = remainingItems.filter(item => item.sort === false);
+
+    // Filter out the non-sortable items and sort the rest
+    const sortableItems = remainingItems.filter(item => item.sort !== false)
+                                        .sort((a, b) => a.name.localeCompare(b.name));
+
+    // Build the final array
+    const finalArray = defaultItem ? [defaultItem, ...sortableItems, ...nonSortableItems] : [...sortableItems, ...nonSortableItems];
+
+    return finalArray;
+};
 </script>
 
 <svelte:window on:click={onWindowClick} />
 
+{#if label}
+	<!-- content here -->
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<label for={id}>{label}</label>
+{/if}
 <div class="dropdown" bind:this={container}>
-	<button class="dropdown-toggle {show === true ? 'open' : ''}" on:click={() => (show = !show)}>
+	<button {id} class="dropdown-toggle {show === true ? 'open' : ''}" on:click={() => (show = !show)}>
 		{selected}
 		<svg class="icon" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path
@@ -56,15 +85,15 @@
 		</svg>
 	</button>
 	{#if show}
-		<div transition:fadeTranslateScale={{ duration: 100, from: 'top' }} class="dropdown-menu">
-			{#each opts as opt}
+		<div bind:this={contents} transition:fadeTranslateScale={{ duration: 100, from: "top" }} class="dropdown-menu">
+			{#each sortAlph(opts) as opt}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span
 					on:click={() => {
 						handleClick(opt);
 					}}
 				>
-				<svg class={`icon ${opt.id === getNestedValue($user, obj) ? "visible" : ""}`} width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg class={`icon ${opt.id === getNestedValue($user, obj) ? "visible" : ""}`} width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path
 							fill-rule="evenodd"
 							clip-rule="evenodd"
@@ -74,12 +103,12 @@
 					</svg>
 					{opt.name}
 					{#if opt.badge}
-					<div class={`badge -${opt.badgeColor}`}>
-						<svg class="dot" fill="currentColor" viewBox="0 0 8 8">
-							<circle cx="4" cy="4" r="3"></circle>
-						</svg>
-						{opt.badge}
-					</div>
+						<div class={`badge -${opt.badgeColor}`}>
+							<svg class="dot" fill="currentColor" viewBox="0 0 8 8">
+								<circle cx="4" cy="4" r="3" />
+							</svg>
+							{opt.badge}
+						</div>
 					{/if}
 				</span>
 			{/each}
