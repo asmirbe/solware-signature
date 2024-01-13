@@ -10,21 +10,24 @@
 	import { formatPhone, loadImage, checkImageUrl, getBase64, fadeSlide, handleInput } from "$lib/util";
 	import { fade } from "svelte/transition";
 	import { Svrollbar } from "svrollbar";
-	let files,
-		fileInput,
-		showMore = false;
+	let fileInput, showMore = false;
 	let viewport;
 	let contents;
-
+	let imageUpload;
 	function handleSuccess(e) {
 		// notifications.success("Copié dans le presse-papier", 1000);
 		e.clearSelection();
 	}
 
-	async function selectImage(image, input) {
-		if (!image) return;
-		const base64 = await getBase64(image);
-		updateInlocalStore("features.previewImage", base64);
+	async function onChange(event) {
+		const file = event.target.files[0];
+		let mimeType = file.type;
+		if(file) {
+			const base64 = await getBase64(file);
+			imageUpload = base64;
+			updateInlocalStore("features.previewImage", base64);
+			event.target.value = ""; // Reset the input value
+		}
 	}
 
 	async function handleSubmit(event) {
@@ -33,21 +36,22 @@
 		if (!$user.identifiers.userUniqueToken && !$user.identifiers.userUniqueToken?.length > 0) return notifications.warning("Une erreur est survenu, merci de vider votre cache ou réessayer avec un autre navigateur.", 2000);
 		if (!$user.features.previewImage) return notifications.warning("Un avatar est requis", 3000, notificationIcon.warning);
 		isLoading.update((current) => !current);
-
+		const formData = new FormData();
 		const uuid = $user.identifiers.userUniqueToken;
-		const avatar = $user.features.previewImage;
 		const name = $user.personalInfo.name;
+
+		formData.append("avatar", imageUpload);
+		formData.append("fullname", name);
 
 		const response = await fetch("api/upload", {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ fullname: name, avatar: avatar, token: uuid }),
+			body: formData,
 		});
 
+		const data = await response.json();
+		console.log("🚀 ~ handleSubmit ~ data:", data)
+
 		if (response.ok) {
-			const data = await response.json();
 			// if (!data.secure_url) return notifications.danger(data.error, 2000);
 			updateInlocalStore("personalInfo.pictureUrl", data.secure_url);
 		}
@@ -79,7 +83,7 @@
 
 <nav>
 	<aside class="sidebar" bind:this={viewport}>
-		<div class="content" bind:this={contents}>
+		<form class="content" bind:this={contents}>
 			<header>
 				<a href="/" class="logo">
 					<svg xmlns="http://www.w3.org/2000/svg" data-name="Calque 1" viewBox="0 0 82.43 17.34">
@@ -107,7 +111,7 @@
 				<label for="avatar">Avatar</label>
 				<div class="input-file {$user.personalInfo.pictureUrl ? 'active' : ''}">
 					<div class="avatar-selection">
-						<input tabindex="-1" id="avatar" name="avatar" bind:files type="file" accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif" bind:this={fileInput} on:change={(e) => selectImage(files[0], e.target)} />
+						<input tabindex="-1" id="avatar" name="avatar" type="file" accept=".png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif,.jfif,.pjpeg,.pjp,.avif" bind:this={fileInput} on:change={onChange} />
 						<div class="avatar">
 							{#if $user.features.previewImage}
 								<img transition:fade={{ duration: 100 }} class="avatar-preview" src={$user.features.previewImage} alt={`Picture of ${$user.personalInfo.name}`} />
@@ -142,7 +146,7 @@
 				<Dropdown opts={brandOptions} obj="preferences.brand" label="Entité" id="entity" />
 			</div>
 			<div class="field">
-				<Dropdown opts={addressOptions} obj="preferences.address" label="Adresse du siège" id="address"/>
+				<Dropdown opts={addressOptions} obj="preferences.address" label="Adresse du siège" id="address" />
 			</div>
 			<div class="field">
 				<label for="phone">Téléphone entreprise</label>
@@ -261,7 +265,7 @@
 						</div>
 					</fieldset> -->
 					<div class="field">
-						<Dropdown opts={langOptions} obj="preferences.advert" id="advert" label="Avertissement de confidentialité"/>
+						<Dropdown opts={langOptions} obj="preferences.advert" id="advert" label="Avertissement de confidentialité" />
 					</div>
 				</div>
 			{/if}
@@ -288,7 +292,7 @@
 							Me contacter
 						</a> -->
 			</footer>
-		</div>
+		</form>
 	</aside>
 	<Svrollbar {viewport} {contents} />
 </nav>

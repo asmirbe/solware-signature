@@ -1,8 +1,6 @@
-import { json } from "@sveltejs/kit";
 import { removeSpaces } from "$lib/util";
 import { v2 as cloudinary } from "cloudinary";
 import { CLOUDNAME, APIKEY, APISECRET } from "$env/static/private";
-import { userCallCounts, callLimitPerUser, timeWindow } from "$lib/constants";
 
 // cloudinary config
 cloudinary.config({
@@ -24,30 +22,14 @@ cloudinary.config({
 	e. The crop is set to fill, which means that the image is cropped to the exact 100x100 pixels
 6. The response is sent back to the client, as a JSON object with the secure URL property */
 export async function POST({ request }) {
-	const data = await request.json();
-	const fullname = removeSpaces(data.fullname);
-	const token = removeSpaces(data.token);
-	if (!data || fullname || token) {
-		return new Response(JSON.stringify({ error: "Missing." }));
-	}
-
-
-	// Rate limiting logic
-	if (!userCallCounts[token]) {
-		userCallCounts[token] = { count: 0, timestamp: Date.now() };
-	} else {
-		if (Date.now() - userCallCounts[token].timestamp > timeWindow) {
-			userCallCounts[token] = { count: 0, timestamp: Date.now() };
-		} else if (userCallCounts[token].count >= callLimitPerUser) {
-			return new Response(JSON.stringify({ error: "Limite dépassée." }));
-		}
-	}
-	userCallCounts[token].count++;
-
-	const file = data.avatar;
+	const formData = await request.formData();
+	const fullname = removeSpaces(formData.get("fullname"));
+	// const token = removeSpaces(formData.get("token"));
+	let token = "1234"
+	const file = formData.get("avatar");
 
 	if (!file) {
-		return new Response(JSON.stringify({ error: "No image provided." }));
+		return new Response(JSON.stringify({ error: "No file uploaded" }));
 	}
 
 	try {

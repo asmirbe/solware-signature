@@ -14,8 +14,7 @@
 	import circle from "$assets/circle.png";
 	let htmlSignature;
 	let clipboard;
-	export let data;
-	console.log(data);
+
 	// $: console.log(htmlSignature);
 	onMount(() => {
 		const images = document.querySelectorAll("img[data-src]");
