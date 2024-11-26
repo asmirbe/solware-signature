@@ -1,7 +1,7 @@
 <script>
 	// Import the Analytics package, and the SvelteKit dev variable.
 	import { dev } from "$app/environment";
-	import { injectAnalytics } from '@vercel/analytics/sveltekit'
+	import { injectAnalytics } from "@vercel/analytics/sveltekit";
 	// Inject the Analytics functionality
 	injectAnalytics({ mode: dev ? "development" : "production" });
 	import "../scss/main.scss";
@@ -46,7 +46,6 @@
 	function loadImage(img, onLoad, onError) {
 		img.onload = () => {
 			onLoad(img);
-			console.log("Image loaded!");
 		};
 		img.onerror = () => {
 			onError(img);
@@ -59,15 +58,9 @@
 		localStorage ? (signLoading = false) : (signLoading = true);
 		const images = document.querySelectorAll("img[data-src]");
 		images.forEach((img) => {
-			loadImage(
-				img,
-				(loadedImg) => {
-					loadedImg.removeAttribute("data-src");
-				},
-				() => {
-					console.log(`Error loading image: ${img.dataset.src}`);
-				}
-			);
+			loadImage(img, (loadedImg) => {
+				loadedImg.removeAttribute("data-src");
+			});
 		});
 		clipboard = new ClipboardJS(".btn");
 		clipboard.on("success", function (e) {
@@ -114,7 +107,6 @@
 			if (showNotification) {
 				notifications.success("Profil sauvegardé", 1000);
 			}
-			console.log("Data saved to local storage");
 		});
 	}
 
@@ -153,14 +145,11 @@
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
-			reader.onloadstart = () => {
-				console.log("Starting file read...");
-			};
+			reader.onloadstart = () => {};
 
 			reader.onprogress = (event) => {
 				if (event.lengthComputable) {
 					const progress = (event.loaded / event.total) * 100;
-					console.log(`Reading file: ${Math.round(progress)}%`);
 				}
 			};
 

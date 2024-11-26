@@ -44,7 +44,6 @@ export const deleteFromlocalStore = (value) => {
 };
 
 export const resetToDefault = () => {
-	console.log(defaultValue);
 	try {
 		user.set(defaultValue);
 		localStorage.setItem('user', JSON.stringify(defaultValue));
