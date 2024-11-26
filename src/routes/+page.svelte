@@ -1,10 +1,9 @@
 <script>
 	// Import the Analytics package, and the SvelteKit dev variable.
 	import { dev } from "$app/environment";
-	import { inject } from "@vercel/analytics";
-
+	import { injectAnalytics } from '@vercel/analytics/sveltekit'
 	// Inject the Analytics functionality
-	inject({ mode: dev ? "development" : "production" });
+	injectAnalytics({ mode: dev ? "development" : "production" });
 	import "../scss/main.scss";
 	import { browser } from "$app/environment";
 	import { onMount, onDestroy } from "svelte";
