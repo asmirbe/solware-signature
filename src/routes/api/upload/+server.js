@@ -37,7 +37,6 @@ export async function POST(event) {
 			html_width: 100,
 			html_height: 100
 		});
-		console.log(res);
 
 		return new Response(JSON.stringify({ secure_url: res.secure_url }));
 	} catch (err) {
