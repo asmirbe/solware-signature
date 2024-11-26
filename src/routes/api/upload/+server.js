@@ -1,10 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
-
+import { CLOUD_NAME, API_KEY, API_SECRET } from "$env/static/private";
 // cloudinary config
 cloudinary.config({
-	cloud_name: 'dshtbs5hm',
-	api_key: '276433938214212',
-	api_secret: 'qTBUdYf6JKGjC4K0yIOR78M0-rI',
+	cloud_name: CLOUD_NAME,
+	api_key: API_KEY,
+	api_secret: API_SECRET,
 });
 
 /* Here is the explanation for the code above:
@@ -37,6 +37,8 @@ export async function POST(event) {
 			html_width: 100,
 			html_height: 100
 		});
+		console.log(res);
+
 		return new Response(JSON.stringify({ secure_url: res.secure_url }));
 	} catch (err) {
 		return new Response(JSON.stringify({ error: err }));
