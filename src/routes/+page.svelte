@@ -174,12 +174,13 @@
 	}
 
 	// Main upload function
+	// Main upload function
 	async function uploadFunction(image, input) {
 		if (!browser) return; // Check if we're in the browser environment
 
 		try {
 			// Reset state and validate
-			isLoading = true;
+			isLoading = true; // Start loading state
 			validateFile(image);
 
 			// Prepare upload data
@@ -210,6 +211,8 @@
 
 			// Update user store with new image URL
 			if (responseData.secure_url) {
+				// Important: Set isLoading to false before updating the URL
+				isLoading = false;
 				$user.pictureUrl = responseData.secure_url;
 				notifications.success("Image téléchargée avec succès", 2000);
 			} else {
@@ -227,7 +230,7 @@
 			if (input) {
 				input.value = null; // Reset input
 			}
-			isLoading = false;
+			isLoading = false; // Make sure loading state is reset
 		}
 	}
 
@@ -464,7 +467,7 @@
 								<td style="border-left:solid #eaecf0 1px" width="16" />
 							{/if}
 							<td style="vertical-align: top; text-align:left;color:#000000; text-align:left">
-								<span style="display: block; padding-top: 10px; line-height:0;color:#000000;font-size:15px; font-weight: bold;">
+								<span style="display: block; margin-top: 10px; line-height:0;color:#000000;font-size:15px; font-weight: bold;">
 									{$user.name}
 								</span>
 								<br />
@@ -491,7 +494,7 @@
 									Dardilly, France 69570
 								</span>
 								<br />
-								<table cellpadding="0" border="0" style="vertical-align:top; padding-top: 16px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 12px;' : ''}">
+								<table cellpadding="0" border="0" style="vertical-align:top; margin-top: 16px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 12px;' : ''}">
 									<tbody>
 										<tr>
 											<td style="font-size: 12px; font-weight: bold; vertical-align: middle;">
