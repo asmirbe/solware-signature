@@ -10,7 +10,8 @@
 	import ClipboardJS from "clipboard";
 	import Image from "../component/image.svelte";
 	import { fade } from "svelte/transition";
-	import { debounce } from "lodash";
+	import lodash from "lodash";
+	const { debounce } = lodash;
 	export let data;
 	const { socialMedia } = data;
 
