@@ -19,7 +19,7 @@
 	const { debounce } = lodash;
 	export let data;
 	const { socialMedia } = data;
-
+	import { info } from '../lib/config.js';
 	// Variables
 	let active = false,
 		localStore,
@@ -237,7 +237,7 @@
 </script>
 
 <svelte:head>
-	<title>Email signature - Solware</title>
+	<title>Email signature - {info.name}</title>
 </svelte:head>
 
 <aside class="form-container">
@@ -411,11 +411,7 @@
 					</button>
 				</div>
 				<div class="desc">
-					<p>
-						Veuillez remplir les informations demandées et coller le contenu dans l'espace <a href="./outlook.png" target="_blank"><u>signature électronique</u></a>
-						d'Outlook.
-					</p>
-					<p>Ce site a été créé par Asmir Belkic pour Solware. Si vous avez des questions ou une demande, n'hésitez pas à me contacter par Teams.</p>
+					<p>Cette ressource a été développée par Asmir Belkic au sein de {info.name}. Pour toute question ou assistance, je reste disponible via mail.</p>
 					<a href="mailto:hello@hiasmir.com" class="btn -secondary">Me contacter</a>
 				</div>
 			</footer>
@@ -469,7 +465,7 @@
 								<span style="margin-bottom:16px;color:#4C4C4C; display:block;">
 									{$user.position} @
 									<a href="https://www.solware.fr/" data-external="true" style="text-decoration:none !important;color:#075dc9;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;">
-										<span style="text-decoration:none;color:#075dc9;font-weight: 500 !important;">Solware</span>
+										<span style="text-decoration:none;color:#075dc9;font-weight: 500 !important;">{info.name}</span>
 									</a>
 								</span>
 								<!-- tel -->
@@ -484,9 +480,7 @@
 									</span>
 								{/if}
 								<span style="color:#8C8C8C;">
-									68 Bis Chemin du Moulin Carron
-									<br />
-									Dardilly, France 69570
+									{@html info.location}
 								</span>
 								<br />
 								<table cellpadding="0" border="0" style="vertical-align:top; margin-top: 16px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 12px;' : ''}">
