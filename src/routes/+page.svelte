@@ -19,7 +19,7 @@
 	const { debounce } = lodash;
 	export let data;
 	const { socialMedia } = data;
-	import { info } from '../lib/config.js';
+	import { info } from "../lib/config.js";
 	// Variables
 	let active = false,
 		localStore,
@@ -426,12 +426,7 @@
 		<div class="sign-content">
 			{#if signLoading}
 				<span
-					style="
-			width: 100%;
-			height: 190px;
-			display: flex;
-			align-items: center;
-			justify-content: center;"
+					style="width: 100%; height: 190px; display: flex; align-items: center; justify-content: center;"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" xml:space="preserve" style="height: 32px; width: 32px;">
 						<path fill="#4c4c4c" d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path>
@@ -439,50 +434,47 @@
 				</span>
 			{:else}
 				<style type="text/css">
-					@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 					table,
 					tbody,
 					tr,
 					td {
-						font-family: Roboto, "Helvetica", "Segoe UI", sans-serif;
+						font-family: system-ui, "Segoe UI", sans-serif;
 						font-weight: 400;
 					}
 				</style>
-				<table transition:fade={{ duration: 200 }} width="600" cellspacing="0" cellpadding="0" border="0" style="font-family:'Roboto', 'Helvetica', 'Segoe UI', sans-serif; initial; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
+				<table transition:fade={{ duration: 200 }} width="600" cellspacing="0" cellpadding="0" border="0" style="font-family: system-ui,Segoe UI,sans-serif; padding: 32px 0; font-size:13px !important; line-height: 1.2 !important;">
 					<tbody>
 						<tr>
 							{#if $user.pictureUrl || isLoading === true}
 								<td width="100" style="vertical-align:top;padding:0 16px;">
 									<Image {isLoading} src={$user.pictureUrl} alt="avatar" style="border-radius: 10px;border:none" />
 								</td>
-								<td style="border-left:solid #eaecf0 1px" width="16" />
+								<!-- <td style="border-left:solid #eaecf0 1px" width="16" /> -->
 							{/if}
-							<td style="vertical-align: top; text-align:left;color:#000000; text-align:left">
-								<span style="display: block; margin-top: 10px; line-height:0;color:#000000;font-size:15px; font-weight: bold;">
+							<td style="vertical-align: top; text-align:left; color:#000000; text-align:left">
+								<span style="display: block; line-height: 1.6; color:#000000;font-size:15px; font-weight: bold;">
 									{$user.name}
 								</span>
-								<br />
-								<span style="margin-bottom:16px;color:#4C4C4C; display:block;">
+								<span style="font-family: system-ui, Segoe UI, sans-serif; font-size: 12px; line-height: 1.6; display:block; margin-bottom: 10px; color: #939598;">
 									{$user.position} @
-									<a href="https://www.solware.fr/" data-external="true" style="text-decoration:none !important;color:#075dc9;font: 500 13px Roboto, 'Helvetica', 'Segoe UI', sans-serif !important;">
+									<a href="https://www.solware.fr/" data-external="true" style="text-decoration:none !important;color:#075dca;font: 500 13px system-ui,Segoe UI,sans-serif !important;">
 										<span style="text-decoration:none;color:#075dc9;font-weight: 500 !important;">{info.name}</span>
 									</a>
 								</span>
 								<!-- tel -->
 								{#if $user.phone}
-									<span style="color:#8C8C8C;display:block;margin-bottom: 3px;">
+									<span style="font-family: system-ui, Segoe UI, sans-serif; font-size: 12px; line-height: 1.6; display:block; color: #939598;">
 										{$user.phone}
 									</span>
 								{/if}
 								{#if $user.email}
-									<span style="color: rgb(140, 140, 140);display: block;margin-bottom: 6px;">
+									<span style="font-family: system-ui, Segoe UI, sans-serif; font-size: 12px; line-height: 1.6; display:block; color: #939598;">
 										{$user.email}
 									</span>
 								{/if}
-								<span style="color:#8C8C8C;">
+								<span style="font-family: system-ui, Segoe UI, sans-serif; font-size: 12px; line-height: 1.6; splay:block; color: #939598;">
 									{@html info.location}
 								</span>
-								<br />
 								<table cellpadding="0" border="0" style="vertical-align:top; margin-top: 16px; border-collapse: initial; {checkImageUrl($user.banner) || $user.advert ? 'padding-bottom: 12px;' : ''}">
 									<tbody>
 										<tr>
@@ -516,7 +508,7 @@
 									</a>
 								{/if}
 								{#if $user.advert}
-									<span style="color:#aaa;font-size:8pt;">
+									<span style="font-family: system-ui, Segoe UI, sans-serif;font-size: 11px;line-height: 1.6;text-align: center;color: #939598;">
 										Ce message électronique et tous les fichiers qui y sont attachés sont confidentiels et destinés uniquement à la personne ou à l'entité à qui ils sont adressés. Si vous avez reçu ce message par erreur, veuillez en informer immédiatement l'expéditeur et supprimer ce message de votre système. Tout usage, divulgation, distribution ou reproduction de ce message est interdit.
 									</span>
 								{/if}
